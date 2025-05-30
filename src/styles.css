@@ -1,1 +1,230 @@
-/* You can add global styles to this file, and also import other style files */
+/* TechNova - Professional Tech Store Styles */
+/* Bootstrap is loaded via CDN in index.html */
+
+:root {
+  /* Primary Colors */
+  --primary-dark-blue: #0f172a;
+  --primary-navy: #1e293b;
+  --primary-slate: #334155;
+  --accent-sky: #0ea5e9;
+  --accent-light-sky: #38bdf8;
+  --accent-cyan: #06b6d4;
+  
+  /* Neutral Colors */
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --surface-primary: #1e293b;
+  --surface-secondary: #334155;
+  --surface-tertiary: #475569;
+  
+  /* Status Colors */
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --info: var(--accent-sky);
+  
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, var(--primary-dark-blue) 0%, var(--primary-navy) 50%, var(--accent-sky) 100%);
+  --gradient-accent: linear-gradient(135deg, var(--accent-sky) 0%, var(--accent-light-sky) 50%, var(--accent-cyan) 100%);
+  --gradient-surface: linear-gradient(135deg, var(--surface-primary) 0%, var(--surface-secondary) 100%);
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.2);
+  --shadow-md: 0 4px 6px rgba(15, 23, 42, 0.3);
+  --shadow-lg: 0 10px 15px rgba(15, 23, 42, 0.4);
+  --shadow-xl: 0 20px 25px rgba(15, 23, 42, 0.5);
+  --shadow-glow: 0 0 20px rgba(14, 165, 233, 0.3);
+  
+  /* Typography */
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  font-family: var(--font-family);
+  line-height: 1.6;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--gradient-primary);
+  color: var(--text-primary);
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--accent-sky);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-light-sky);
+}
+
+/* Bootstrap Customizations */
+.btn-primary {
+  background: var(--gradient-accent) !important;
+  border: none !important;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-md);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  background: var(--gradient-accent) !important;
+  filter: brightness(1.1);
+}
+
+.btn-outline-primary {
+  color: var(--accent-sky) !important;
+  border-color: var(--accent-sky) !important;
+  font-weight: 500;
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--accent-sky) !important;
+  border-color: var(--accent-sky) !important;
+  color: white !important;
+}
+
+.card {
+  background: var(--gradient-surface) !important;
+  border: 1px solid var(--surface-tertiary) !important;
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-xl);
+  border-color: var(--accent-sky) !important;
+}
+
+.form-control {
+  background: rgba(30, 41, 59, 0.8) !important;
+  border: 1px solid var(--surface-tertiary) !important;
+  border-radius: 12px;
+  color: var(--text-primary) !important;
+  padding: 12px 16px;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus {
+  background: rgba(30, 41, 59, 0.9) !important;
+  border-color: var(--accent-sky) !important;
+  box-shadow: 0 0 0 0.2rem rgba(14, 165, 233, 0.25) !important;
+  color: var(--text-primary) !important;
+}
+
+.form-control::placeholder {
+  color: var(--text-muted) !important;
+}
+
+.navbar {
+  background: rgba(15, 23, 42, 0.95) !important;
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(51, 65, 85, 0.3);
+}
+
+.navbar-brand {
+  font-weight: 700 !important;
+  background: var(--gradient-accent);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.navbar-nav .nav-link {
+  color: var(--text-secondary) !important;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover {
+  color: var(--accent-light-sky) !important;
+  background: rgba(14, 165, 233, 0.1) !important;
+}
+
+.dropdown-menu {
+  background: var(--surface-primary) !important;
+  border: 1px solid var(--surface-tertiary) !important;
+  border-radius: 12px;
+}
+
+.dropdown-item {
+  color: var(--text-secondary) !important;
+}
+
+.dropdown-item:hover {
+  background: rgba(14, 165, 233, 0.1) !important;
+  color: var(--accent-light-sky) !important;
+}
+
+.badge.bg-primary {
+  background: var(--gradient-accent) !important;
+}
+
+.text-gradient {
+  background: var(--gradient-accent);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.bg-surface {
+  background: var(--gradient-surface) !important;
+}
+
+.shadow-glow {
+  box-shadow: var(--shadow-glow);
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.text-primary {
+  color: var(--text-primary) !important;
+}
+
+.text-secondary {
+  color: var(--text-secondary) !important;
+}
+
+.border-secondary {
+  border-color: var(--surface-tertiary) !important;
+}
