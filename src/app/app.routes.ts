@@ -28,6 +28,16 @@ export const routes: Routes = [
     title: 'Deals - TechNova'
   },
   {
+    path: 'account',
+    loadComponent: () => import('./components/account/account.component').then(m => m.AccountComponent),
+    title: 'My Account - TechNova'
+  },
+  {
+    path: 'account/:tab',
+    loadComponent: () => import('./components/account/account.component').then(m => m.AccountComponent),
+    title: 'My Account - TechNova'
+  },
+  {
     path: '**',
     redirectTo: '',
     pathMatch: 'full'

@@ -163,9 +163,9 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
                             <div class="product-details">
                               <h6 class="product-name">{{product.name}}</h6>
                               <div class="product-price">
-                                <span class="current-price">₹{{product.price | number:'1.2-2'}}</span>
+                                <span class="current-price">\${{product.price | number:'1.2-2'}}</span>
                                 <span *ngIf="product.originalPrice" class="original-price">
-                                  ₹{{product.originalPrice | number:'1.2-2'}}
+                                  \${{product.originalPrice | number:'1.2-2'}}
                                 </span>
                               </div>
                               <div class="product-rating">
@@ -205,7 +205,7 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
                              [queryParams]="{maxPrice: 100}"
                              (click)="closeMegaMenu()">
                             <i class="bi bi-tag-fill"></i>
-                            <span>Under ₹100</span>
+                            <span>Under \$100</span>
                           </a>
                           <a class="quick-link-item" 
                              [routerLink]="['/deals']"
@@ -315,7 +315,7 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
                         <div class="result-info">
                           <div class="result-name">{{product.name}}</div>
                           <div class="result-category">{{product.category}}</div>
-                          <div class="result-price">₹{{product.price | number:'1.2-2'}}</div>
+                          <div class="result-price">\${{product.price | number:'1.2-2'}}</div>
                         </div>
                         <div class="result-rating">
                           <div class="stars">
@@ -354,26 +354,23 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
 
             <!-- User Actions -->
             <ul class="navbar-nav">
-              <!-- User Account -->
-              <li class="nav-item dropdown user-dropdown">
-                <a class="nav-link dropdown-toggle" 
-                   href="#" 
-                   id="userDropdown" 
-                   role="button" 
-                   data-bs-toggle="dropdown"
-                   [attr.aria-expanded]="userMenuOpen"
-                   (click)="$event.preventDefault()">
-                  <div class="user-avatar">
-                    <i class="bi bi-person-circle"></i>
-                  </div>
-                  <span class="d-none d-lg-inline ms-1">Account</span>
+              <!-- Account Dropdown -->
+              <li class="nav-item dropdown">
+                <a 
+                  class="nav-link dropdown-toggle" 
+                  href="#" 
+                  id="accountDropdown" 
+                  role="button" 
+                  data-bs-toggle="dropdown">
+                  <i class="bi bi-person me-1"></i>
+                  <span class="d-none d-lg-inline">Account</span>
                 </a>
-                <ul class="dropdown-menu user-menu">
-                  <li class="user-menu-header">
+                <ul class="dropdown-menu dropdown-menu-end account-dropdown">
+                  <!-- User Info Header -->
+                  <li class="dropdown-header account-header">
                     <div class="user-info">
-                      <div class="user-avatar-large">
-                        <i class="bi bi-person-circle"></i>
-                      </div>
+                      <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face" 
+                           alt="User Avatar" class="user-avatar-small">
                       <div class="user-details">
                         <div class="user-name">John Doe</div>
                         <div class="user-email">john&#64;example.com</div>
@@ -381,33 +378,49 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
                     </div>
                   </li>
                   <li><hr class="dropdown-divider"></li>
+                  
+                  <!-- Account Menu Items -->
                   <li>
-                    <a class="dropdown-item" href="#" (click)="$event.preventDefault()">
+                    <a class="dropdown-item" routerLink="/account">
+                      <i class="bi bi-speedometer2 me-2"></i>
+                      Dashboard
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" [routerLink]="['/account', 'profile']">
                       <i class="bi bi-person me-2"></i>
                       My Profile
                     </a>
                   </li>
                   <li>
-                    <a class="dropdown-item" href="#" (click)="$event.preventDefault()">
+                    <a class="dropdown-item" [routerLink]="['/account', 'orders']">
                       <i class="bi bi-bag me-2"></i>
                       My Orders
+                      <span class="badge bg-primary ms-auto">3</span>
                     </a>
                   </li>
                   <li>
-                    <a class="dropdown-item" href="#" (click)="$event.preventDefault()">
+                    <a class="dropdown-item" [routerLink]="['/account', 'wishlist']">
                       <i class="bi bi-heart me-2"></i>
                       Wishlist
+                      <span class="badge bg-secondary ms-auto">12</span>
                     </a>
                   </li>
                   <li>
-                    <a class="dropdown-item" href="#" (click)="$event.preventDefault()">
+                    <a class="dropdown-item" [routerLink]="['/account', 'addresses']">
+                      <i class="bi bi-geo-alt me-2"></i>
+                      Addresses
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" [routerLink]="['/account', 'settings']">
                       <i class="bi bi-gear me-2"></i>
                       Settings
                     </a>
                   </li>
                   <li><hr class="dropdown-divider"></li>
                   <li>
-                    <a class="dropdown-item" href="#" (click)="$event.preventDefault()">
+                    <a class="dropdown-item text-danger" href="#" (click)="signOut($event)">
                       <i class="bi bi-box-arrow-right me-2"></i>
                       Sign Out
                     </a>
@@ -418,8 +431,7 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
               <!-- Wishlist -->
               <li class="nav-item">
                 <a class="nav-link position-relative" 
-                   href="#" 
-                   (click)="$event.preventDefault()"
+                   [routerLink]="['/account', 'wishlist']"
                    title="Wishlist">
                   <i class="bi bi-heart"></i>
                   <span class="d-none d-lg-inline ms-1">Wishlist</span>
@@ -462,7 +474,7 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
                       <div class="item-details">
                         <div class="item-name">{{item.product.name}}</div>
                         <div class="item-quantity">Qty: {{item.quantity}}</div>
-                        <div class="item-price">₹{{item.product.price * item.quantity | number:'1.2-2'}}</div>
+                        <div class="item-price">\${{item.product.price * item.quantity | number:'1.2-2'}}</div>
                       </div>
                     </div>
                     
@@ -473,7 +485,7 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
                   
                   <div class="cart-preview-footer">
                     <div class="cart-total">
-                      <strong>Total: ₹{{cartTotal | number:'1.2-2'}}</strong>
+                      <strong>Total: \${{cartTotal | number:'1.2-2'}}</strong>
                     </div>
                     <div class="cart-actions">
                       <a class="btn btn-outline-primary btn-sm" routerLink="/cart">
@@ -520,6 +532,84 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
       background: rgba(255, 255, 255, 0.98);
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     }
+
+    .account-dropdown {
+      width: 280px;
+      padding: 0;
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+      margin-top: 10px;
+    }
+
+    .account-header {
+      background: linear-gradient(135deg, #007bff, #0056b3);
+      color: white;
+      padding: 16px 20px;
+      border-radius: 12px 12px 0 0;
+      border-bottom: none;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .user-avatar-small {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .user-details {
+      flex: 1;
+    }
+
+    .user-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-bottom: 2px;
+    }
+
+    .user-email {
+      font-size: 0.8rem;
+      opacity: 0.9;
+    }
+
+    .account-dropdown .dropdown-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+      color: #495057;
+      transition: all 0.3s ease;
+      border-radius: 0;
+    }
+
+    .account-dropdown .dropdown-item:hover {
+      background: #f8f9fa;
+      color: #007bff;
+      padding-left: 25px;
+    }
+
+    .account-dropdown .dropdown-item.text-danger:hover {
+      background: #fff5f5;
+      color: #dc3545;
+    }
+
+    .account-dropdown .badge {
+      font-size: 0.7rem;
+      min-width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    
 
     /* Top Bar */
     .top-bar {
@@ -1565,6 +1655,16 @@ export class HeaderComponent implements OnInit, OnDestroy {
   searchSuggestions: string[] = ['Gaming Laptops', 'Wireless Headphones', 'Mechanical Keyboards'];
   selectedCategory: string | null = null;
   
+  signOut(event: Event): void {
+    event.preventDefault();
+    if (confirm('Are you sure you want to sign out?')) {
+      console.log('Signing out...');
+      // Implement sign out logic here
+      // this.userService.logout().subscribe(() => {
+      //   this.router.navigate(['/']);
+      // });
+    }
+  }
   // State management
   isScrolled = false;
   mobileMenuOpen = false;
