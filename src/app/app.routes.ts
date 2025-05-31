@@ -1,28 +1,35 @@
+// src/app/app.routes.ts
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () => import('./components/home/home.component').then(m => m.HomeComponent)
+    loadComponent: () => import('./components/home/home.component').then(m => m.HomeComponent),
+    title: 'TechNova - Home'
   },
   {
     path: 'products',
-    loadComponent: () => import('./components/products/products.component').then(m => m.ProductsComponent)
+    loadComponent: () => import('./components/products/pages/product-list/product-list.component').then(m => m.ProductListComponent),
+    title: 'Products - TechNova'
   },
   {
-    path: 'categories',
-    loadComponent: () => import('./components/categories/categories.component').then(m => m.CategoriesComponent)
+    path: 'products/:id',
+    loadComponent: () => import('./components/products/pages/product-detail/product-detail.component').then(m => m.ProductDetailComponent),
+    title: 'Product Details - TechNova'
   },
   {
     path: 'cart',
-    loadComponent: () => import('./components/cart/cart.component').then(m => m.CartComponent)
+    loadComponent: () => import('./components/cart/cart.component').then(m => m.CartComponent),
+    title: 'Shopping Cart - TechNova'
   },
   {
     path: 'deals',
-    loadComponent: () => import('./components/deals/deals.component').then(m => m.DealsComponent)
+    loadComponent: () => import('./components/deals/deals.component').then(m => m.DealsComponent),
+    title: 'Deals - TechNova'
   },
   {
     path: '**',
-    redirectTo: ''
+    redirectTo: '',
+    pathMatch: 'full'
   }
 ];
