@@ -16,44 +16,7 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
   imports: [CommonModule, RouterModule, FormsModule],
   template: `
     <header class="main-header" [class.scrolled]="isScrolled">
-      <!-- Top Bar -->
-      <div class="top-bar" *ngIf="!isScrolled">
-        <div class="container-fluid">
-          <div class="row align-items-center">
-            <div class="col-md-6">
-              <div class="top-bar-left">
-                <span class="top-bar-item">
-                  <i class="bi bi-telephone me-1"></i>
-                  +1 (555) 123-4567
-                </span>
-                <span class="top-bar-item">
-                  <i class="bi bi-envelope me-1"></i>
-                  support&#64;technova.com
-                </span>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="top-bar-right">
-                <span class="top-bar-item">
-                  <i class="bi bi-truck me-1"></i>
-                  Free shipping on orders over $50
-                </span>
-                <div class="social-links">
-                  <a href="#" class="social-link" aria-label="Facebook">
-                    <i class="bi bi-facebook"></i>
-                  </a>
-                  <a href="#" class="social-link" aria-label="Twitter">
-                    <i class="bi bi-twitter"></i>
-                  </a>
-                  <a href="#" class="social-link" aria-label="Instagram">
-                    <i class="bi bi-instagram"></i>
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      
 
       <!-- Main Navigation -->
       <nav class="navbar navbar-expand-lg">
