@@ -4,6 +4,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ProductService } from '../../../../services/product.service';
+import { WishlistService } from '../../../../services/wishlist.service';
+import { CartService } from '../../../../services/cart.service';
 import { ProductCardComponent } from '../../../product-card/product-card.component';
 import { Product } from '../../../../models/product.model';
 
@@ -126,9 +128,15 @@ import { Product } from '../../../../models/product.model';
                     <i class="bi bi-cart-plus me-2"></i>
                     Add to Cart
                   </button>
-                  <button class="btn btn-outline-secondary btn-wishlist" (click)="addToWishlist()">
-                    <i class="bi bi-heart me-2"></i>
-                    Add to Wishlist
+                  <button 
+                    class="btn btn-wishlist"
+                    [class.btn-outline-secondary]="!isInWishlist"
+                    [class.btn-danger]="isInWishlist"
+                    (click)="addToWishlist()">
+                    <i class="bi me-2" 
+                       [class.bi-heart]="!isInWishlist"
+                       [class.bi-heart-fill]="isInWishlist"></i>
+                    {{isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}}
                   </button>
                 </div>
 
@@ -314,7 +322,6 @@ import { Product } from '../../../../models/product.model';
       color: #6c757d;
     }
 
-    /* Product Images */
     .product-images {
       position: sticky;
       top: 20px;
@@ -428,7 +435,6 @@ import { Product } from '../../../../models/product.model';
       object-fit: cover;
     }
 
-    /* Product Info */
     .product-info {
       background: white;
       border-radius: 12px;
@@ -605,6 +611,18 @@ import { Product } from '../../../../models/product.model';
     .btn-wishlist {
       padding: 12px 30px;
       font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-wishlist.btn-danger {
+      background: linear-gradient(135deg, #dc3545, #c82333);
+      border-color: #dc3545;
+    }
+
+    .btn-wishlist.btn-danger:hover {
+      background: linear-gradient(135deg, #c82333, #bd2130);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
     }
 
     .quick-actions {
@@ -612,7 +630,6 @@ import { Product } from '../../../../models/product.model';
       gap: 15px;
     }
 
-    /* Product Tabs */
     .product-tabs {
       background: white;
       border-radius: 12px;
@@ -660,7 +677,6 @@ import { Product } from '../../../../models/product.model';
       color: #6c757d;
     }
 
-    /* Reviews */
     .rating-overview {
       text-align: center;
       padding: 30px;
@@ -716,7 +732,6 @@ import { Product } from '../../../../models/product.model';
       font-size: 0.9rem;
     }
 
-    /* Related Products */
     .related-products {
       background: white;
       border-radius: 12px;
@@ -730,7 +745,6 @@ import { Product } from '../../../../models/product.model';
       margin-bottom: 25px;
     }
 
-    /* Loading and Error States */
     .loading-container,
     .not-found-container {
       min-height: 60vh;
@@ -739,7 +753,6 @@ import { Product } from '../../../../models/product.model';
       justify-content: center;
     }
 
-    /* Mobile Responsiveness */
     @media (max-width: 768px) {
       .product-title {
         font-size: 1.5rem;
@@ -770,6 +783,7 @@ export class ProductDetailComponent implements OnInit {
   quantity = 1;
   selectedImage = '';
   currentImageIndex = 0;
+  isInWishlist = false;
 
   sampleReviews = [
     {
@@ -795,7 +809,9 @@ export class ProductDetailComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private productService: ProductService
+    private productService: ProductService,
+    private wishlistService: WishlistService,
+    private cartService: CartService
   ) {}
 
   ngOnInit(): void {
@@ -815,6 +831,7 @@ export class ProductDetailComponent implements OnInit {
           this.product = product;
           this.selectedImage = product.images[0];
           this.currentImageIndex = 0;
+          this.checkWishlistStatus();
           this.loadRelatedProducts(product.id);
         } else {
           this.product = null;
@@ -827,6 +844,12 @@ export class ProductDetailComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  checkWishlistStatus(): void {
+    if (this.product) {
+      this.isInWishlist = this.wishlistService.isInWishlist(this.product.id);
+    }
   }
 
   loadRelatedProducts(productId: number): void {
@@ -873,28 +896,44 @@ export class ProductDetailComponent implements OnInit {
 
   addToCart(): void {
     if (this.product && this.product.inStock) {
-      console.log(`Adding ${this.quantity} of ${this.product.name} to cart`);
-      // TODO: Implement add to cart functionality
+      this.cartService.addToCart(this.product, this.quantity);
+      // Optional: Show success message or notification
+      console.log('Added ' + this.quantity + ' ' + this.product.name + ' to cart');
     }
   }
 
   addToWishlist(): void {
     if (this.product) {
-      console.log(`Adding ${this.product.name} to wishlist`);
-      // TODO: Implement add to wishlist functionality
+      if (this.isInWishlist) {
+        this.wishlistService.removeFromWishlist(this.product.id);
+        this.isInWishlist = false;
+      } else {
+        this.wishlistService.addToWishlist(this.product);
+        this.isInWishlist = true;
+      }
     }
   }
 
   getStars(rating: number): number[] {
-    return Array(Math.floor(rating)).fill(0);
+    const fullStars = Math.floor(rating);
+    return Array(fullStars).fill(0);
   }
 
   getEmptyStars(rating: number): number[] {
-    return Array(5 - Math.floor(rating)).fill(0);
+    const fullStars = Math.floor(rating);
+    const emptyStars = 5 - fullStars;
+    return Array(emptyStars).fill(0);
   }
 
   getSpecificationEntries(): {key: string, value: string}[] {
-    if (!this.product) return [];
-    return Object.entries(this.product.specifications).map(([key, value]) => ({ key, value }));
+    if (!this.product || !this.product.specifications) {
+      return [];
+    }
+    
+    // Convert specifications object to array of key-value pairs
+    return Object.entries(this.product.specifications).map(([key, value]) => ({
+      key: key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1').trim(),
+      value: value
+    }));
   }
 }

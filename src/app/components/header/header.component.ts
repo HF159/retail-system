@@ -5,6 +5,7 @@ import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ProductService } from '../../services/product.service';
 import { CartService } from '../../services/cart.service';
+import { WishlistService } from '../../services/wishlist.service';
 import { Category, Product, CartItem } from '../../models/product.model';
 import { Subject, BehaviorSubject, Observable, of } from 'rxjs';
 import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from 'rxjs/operators';
@@ -20,7 +21,7 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
       <!-- Main Navigation -->
       <nav class="navbar navbar-expand-lg">
         <div class="container-fluid">
-          <!-- Brand -->
+          <!-- Brand Logo -->
           <a class="navbar-brand" routerLink="/">
             <div class="brand-container">
               <div class="brand-icon">
@@ -33,7 +34,7 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
             </div>
           </a>
 
-          <!-- Mobile Toggle -->
+          <!-- Mobile Menu Toggle -->
           <button 
             class="navbar-toggler" 
             type="button" 
@@ -46,19 +47,21 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
             </span>
           </button>
 
+          <!-- Navigation Content -->
           <div class="collapse navbar-collapse" 
                [class.show]="mobileMenuOpen" 
                id="navbarNav">
             
-            <!-- Main Navigation Links -->
+            <!-- Primary Navigation -->
             <ul class="navbar-nav me-auto">
+              <!-- Home -->
               <li class="nav-item">
                 <a class="nav-link" 
                    routerLink="/" 
                    routerLinkActive="active" 
                    [routerLinkActiveOptions]="{exact: true}"
                    (click)="closeMobileMenu()">
-                  <i class="bi bi-house me-1"></i>
+                  <i class="bi bi-house me-2"></i>
                   <span>Home</span>
                 </a>
               </li>
@@ -73,12 +76,12 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
                    role="button"
                    [attr.aria-expanded]="megaMenuOpen"
                    (click)="$event.preventDefault()">
-                  <i class="bi bi-grid-3x3-gap me-1"></i>
+                  <i class="bi bi-grid-3x3-gap me-2"></i>
                   <span>Products</span>
                 </a>
                 
-                <div class="mega-menu" 
-                     [class.show]="megaMenuOpen">
+                <!-- Mega Menu Content -->
+                <div class="mega-menu" [class.show]="megaMenuOpen">
                   <div class="container-fluid">
                     <div class="row">
                       <!-- Categories Column -->
@@ -198,12 +201,13 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
                 </div>
               </li>
 
+              <!-- Deals -->
               <li class="nav-item">
                 <a class="nav-link" 
                    routerLink="/deals" 
                    routerLinkActive="active"
                    (click)="closeMobileMenu()">
-                  <i class="bi bi-lightning me-1"></i>
+                  <i class="bi bi-lightning me-2"></i>
                   <span>Deals</span>
                   <span class="nav-badge">Hot</span>
                 </a>
@@ -309,14 +313,13 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
             <ul class="navbar-nav">
               <!-- Account Dropdown -->
               <li class="nav-item dropdown">
-                <a 
-                  class="nav-link dropdown-toggle" 
-                  href="#" 
-                  id="accountDropdown" 
-                  role="button" 
-                  data-bs-toggle="dropdown"
-                  [attr.aria-expanded]="userMenuOpen">
-                  <i class="bi bi-person me-1"></i>
+                <a class="nav-link dropdown-toggle" 
+                   href="#" 
+                   id="accountDropdown" 
+                   role="button" 
+                   data-bs-toggle="dropdown"
+                   [attr.aria-expanded]="userMenuOpen">
+                  <i class="bi bi-person me-2"></i>
                   <span class="d-none d-lg-inline">Account</span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end account-dropdown">
@@ -354,10 +357,10 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
                     </a>
                   </li>
                   <li>
-                    <a class="dropdown-item" href="#" (click)="$event.preventDefault()">
+                    <a class="dropdown-item" routerLink="/wishlist">
                       <i class="bi bi-heart me-2"></i>
                       Wishlist
-                      <span class="badge bg-secondary ms-auto">{{wishlistItemCount}}</span>
+                      <span class="badge bg-danger ms-auto" *ngIf="wishlistItemCount > 0">{{wishlistItemCount}}</span>
                     </a>
                   </li>
                   <li>
@@ -385,12 +388,12 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
               <!-- Wishlist -->
               <li class="nav-item">
                 <a class="nav-link position-relative" 
-                   href="#"
-                   (click)="$event.preventDefault()"
+                   routerLink="/wishlist"
+                   routerLinkActive="active"
                    title="Wishlist">
-                  <i class="bi bi-heart"></i>
-                  <span class="d-none d-lg-inline ms-1">Wishlist</span>
-                  <span class="notification-badge" *ngIf="wishlistItemCount > 0">
+                  <i class="bi bi-heart me-2"></i>
+                  <span class="d-none d-lg-inline">Wishlist</span>
+                  <span class="wishlist-badge" *ngIf="wishlistItemCount > 0">
                     {{wishlistItemCount}}
                   </span>
                 </a>
@@ -401,15 +404,15 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
                   (mouseenter)="showCartPreview()" 
                   (mouseleave)="hideCartPreview()">
                 <a class="nav-link position-relative cart-link" 
-                   routerLink="/cart">
+                   routerLink="/cart"
+                   routerLinkActive="active">
                   <div class="cart-icon">
-                    <i class="bi bi-bag"></i>
-                    <span class="cart-badge" 
-                          *ngIf="cartItemCount > 0">
+                    <i class="bi bi-bag me-2"></i>
+                    <span class="d-none d-lg-inline">Cart</span>
+                    <span class="cart-badge" *ngIf="cartItemCount > 0">
                       {{cartItemCount}}
                     </span>
                   </div>
-                  <span class="d-none d-lg-inline ms-1">Cart</span>
                 </a>
 
                 <!-- Cart Preview Dropdown -->
@@ -483,7 +486,9 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
          (click)="closeMobileMenu()"></div>
   `,
   styles: [`
-    /* Header Container */
+    /* ======================================
+       HEADER MAIN CONTAINER
+    ====================================== */
     .main-header {
       position: fixed;
       top: 0;
@@ -501,7 +506,9 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     }
 
-    /* Top Bar */
+    /* ======================================
+       TOP BAR
+    ====================================== */
     .top-bar {
       background: linear-gradient(135deg, #0f172a, #1e293b);
       color: white;
@@ -524,6 +531,11 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
       display: flex;
       align-items: center;
       color: rgba(255, 255, 255, 0.9);
+      transition: color 0.3s ease;
+    }
+
+    .top-bar-item:hover {
+      color: #38bdf8;
     }
 
     .social-links {
@@ -536,22 +548,25 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 24px;
-      height: 24px;
+      width: 28px;
+      height: 28px;
       background: rgba(255, 255, 255, 0.1);
       border-radius: 50%;
       color: white;
       text-decoration: none;
       transition: all 0.3s ease;
+      font-size: 0.9rem;
     }
 
     .social-link:hover {
-      background: rgba(14, 165, 233, 0.8);
+      background: #38bdf8;
       transform: scale(1.1);
       color: white;
     }
 
-    /* Notification Bar */
+    /* ======================================
+       NOTIFICATION BAR
+    ====================================== */
     .notification-bar {
       background: linear-gradient(135deg, #f59e0b, #f97316);
       color: white;
@@ -577,10 +592,16 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
       padding: 0.25rem;
       border-radius: 50%;
       transition: all 0.3s ease;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .btn-close-notification:hover {
       background: rgba(255, 255, 255, 0.2);
+      transform: scale(1.1);
     }
 
     @keyframes slideDown {
@@ -594,88 +615,14 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
       }
     }
 
-    /* Account Dropdown */
-    .account-dropdown {
-      width: 280px;
-      padding: 0;
-      border: none;
-      border-radius: 12px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-      margin-top: 10px;
-    }
-
-    .account-header {
-      background: linear-gradient(135deg, #007bff, #0056b3);
-      color: white;
-      padding: 16px 20px;
-      border-radius: 12px 12px 0 0;
-      border-bottom: none;
-    }
-
-    .user-info {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .user-avatar-small {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid rgba(255, 255, 255, 0.3);
-    }
-
-    .user-details {
-      flex: 1;
-    }
-
-    .user-name {
-      font-weight: 600;
-      font-size: 0.95rem;
-      margin-bottom: 2px;
-    }
-
-    .user-email {
-      font-size: 0.8rem;
-      opacity: 0.9;
-    }
-
-    .account-dropdown .dropdown-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 20px;
-      color: #495057;
-      transition: all 0.3s ease;
-      border-radius: 0;
-    }
-
-    .account-dropdown .dropdown-item:hover {
-      background: #f8f9fa;
-      color: #007bff;
-      padding-left: 25px;
-    }
-
-    .account-dropdown .dropdown-item.text-danger:hover {
-      background: #fff5f5;
-      color: #dc3545;
-    }
-
-    .account-dropdown .badge {
-      font-size: 0.7rem;
-      min-width: 18px;
-      height: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    /* Brand */
+    /* ======================================
+       BRAND LOGO
+    ====================================== */
     .navbar-brand {
       text-decoration: none;
       color: inherit;
       transition: transform 0.3s ease;
+      margin-right: 2rem;
     }
 
     .navbar-brand:hover {
@@ -691,8 +638,8 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
     }
 
     .brand-icon {
-      width: 40px;
-      height: 40px;
+      width: 42px;
+      height: 42px;
       background: linear-gradient(135deg, #0ea5e9, #38bdf8);
       border-radius: 12px;
       display: flex;
@@ -700,6 +647,7 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
       justify-content: center;
       color: white;
       font-size: 1.5rem;
+      box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
     }
 
     .brand-text {
@@ -709,18 +657,23 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
     }
 
     .brand-name {
-      font-size: 1.5rem;
+      font-size: 1.6rem;
       font-weight: 800;
       color: #1e293b;
+      letter-spacing: -0.5px;
     }
 
     .brand-tagline {
       font-size: 0.7rem;
       color: #64748b;
       font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
-    /* Mobile Toggle */
+    /* ======================================
+       MOBILE TOGGLE
+    ====================================== */
     .navbar-toggler {
       border: none;
       padding: 0.25rem;
@@ -764,7 +717,9 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
       transform: rotate(-45deg) translate(6px, -6px);
     }
 
-    /* Navigation */
+    /* ======================================
+       NAVIGATION
+    ====================================== */
     .navbar {
       padding: 1rem 0;
     }
@@ -777,12 +732,13 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
       color: #475569 !important;
       font-weight: 500;
       padding: 0.75rem 1rem !important;
-      border-radius: 8px;
+      border-radius: 10px;
       margin: 0 0.125rem;
       transition: all 0.3s ease;
       position: relative;
       display: flex;
       align-items: center;
+      text-decoration: none;
     }
 
     .nav-link:hover,
@@ -796,14 +752,16 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
       background: linear-gradient(135deg, #ef4444, #dc2626);
       color: white;
       font-size: 0.6rem;
-      padding: 2px 6px;
+      padding: 3px 6px;
       border-radius: 10px;
       margin-left: 0.5rem;
       font-weight: 600;
       animation: pulse 2s infinite;
     }
 
-    /* Mega Menu */
+    /* ======================================
+       MEGA MENU
+    ====================================== */
     .mega-dropdown {
       position: static;
     }
@@ -814,14 +772,13 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
       left: 0;
       right: 0;
       background: white;
-      border: none;
       border-radius: 0 0 16px 16px;
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-      padding: 2rem 0;
       opacity: 0;
       visibility: hidden;
       transform: translateY(-10px);
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      padding: 2rem 0;
       z-index: 1000;
     }
 
@@ -833,16 +790,16 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
 
     .mega-menu-title {
       color: #1e293b;
-      font-weight: 600;
-      font-size: 1rem;
+      font-weight: 700;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
       margin-bottom: 1rem;
       padding-bottom: 0.5rem;
-      border-bottom: 2px solid #f1f5f9;
-      display: flex;
-      align-items: center;
+      border-bottom: 2px solid #e2e8f0;
     }
 
-    /* Category List */
+    /* Category Items */
     .category-list {
       display: flex;
       flex-direction: column;
@@ -852,38 +809,37 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
     .category-item {
       display: flex;
       align-items: center;
-      padding: 0.75rem;
-      text-decoration: none;
+      padding: 0.75rem 1rem;
       color: #475569;
-      border-radius: 8px;
+      text-decoration: none;
+      border-radius: 12px;
       transition: all 0.3s ease;
-      position: relative;
+      border: 1px solid transparent;
     }
 
     .category-item:hover {
       background: #f8fafc;
       color: #007bff;
-      transform: translateX(5px);
+      border-color: #e2e8f0;
+      transform: translateX(4px);
       text-decoration: none;
     }
 
     .category-icon {
-      width: 35px;
-      height: 35px;
-      background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
-      border-radius: 8px;
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #e2e8f0, #f1f5f9);
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
       margin-right: 0.75rem;
-      font-size: 1.1rem;
-      color: #64748b;
       transition: all 0.3s ease;
     }
 
     .category-item:hover .category-icon {
-      background: linear-gradient(135deg, #dbeafe, #bfdbfe);
-      color: #007bff;
+      background: linear-gradient(135deg, #007bff, #0056b3);
+      color: white;
     }
 
     .category-info {
@@ -891,14 +847,15 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
     }
 
     .category-name {
-      font-weight: 500;
-      margin-bottom: 0.125rem;
+      font-weight: 600;
+      font-size: 0.9rem;
       display: block;
+      margin-bottom: 2px;
     }
 
     .category-count {
-      color: #94a3b8;
-      font-size: 0.8rem;
+      color: #64748b;
+      font-size: 0.75rem;
     }
 
     .category-arrow {
@@ -909,7 +866,7 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
 
     .category-item:hover .category-arrow {
       opacity: 1;
-      transform: translateX(3px);
+      transform: translateX(4px);
     }
 
     /* Featured Products */
@@ -921,12 +878,11 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
 
     .featured-product-item {
       display: flex;
-      align-items: center;
-      padding: 0.75rem;
-      text-decoration: none;
-      color: #475569;
-      border-radius: 8px;
+      padding: 1rem;
+      border-radius: 12px;
       transition: all 0.3s ease;
+      text-decoration: none;
+      color: inherit;
       border: 1px solid transparent;
     }
 
@@ -934,18 +890,17 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
       background: #f8fafc;
       border-color: #e2e8f0;
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       text-decoration: none;
-      color: #475569;
+      color: inherit;
     }
 
     .product-image {
       position: relative;
       width: 60px;
       height: 60px;
-      border-radius: 8px;
+      border-radius: 10px;
       overflow: hidden;
-      margin-right: 0.75rem;
+      margin-right: 1rem;
       flex-shrink: 0;
     }
 
@@ -957,47 +912,43 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
 
     .product-badge {
       position: absolute;
-      top: -2px;
-      right: -2px;
+      top: 4px;
+      right: 4px;
       background: linear-gradient(135deg, #ef4444, #dc2626);
       color: white;
-      font-size: 0.65rem;
+      font-size: 0.6rem;
       padding: 2px 4px;
-      border-radius: 4px;
+      border-radius: 6px;
       font-weight: 600;
     }
 
     .product-details {
       flex: 1;
-      min-width: 0;
     }
 
     .product-name {
-      font-weight: 500;
+      font-size: 0.85rem;
+      font-weight: 600;
       margin-bottom: 0.25rem;
-      font-size: 0.9rem;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      line-height: 1.3;
+      color: #1e293b;
     }
 
     .product-price {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
       margin-bottom: 0.25rem;
     }
 
     .current-price {
+      font-weight: 700;
       color: #007bff;
-      font-weight: 600;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
     }
 
     .original-price {
       color: #94a3b8;
       text-decoration: line-through;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
+      margin-left: 0.5rem;
     }
 
     .product-rating {
@@ -1008,13 +959,12 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
 
     .stars {
       color: #fbbf24;
-      font-size: 0.75rem;
-      display: flex;
+      font-size: 0.7rem;
     }
 
     .rating-count {
-      color: #94a3b8;
-      font-size: 0.75rem;
+      color: #64748b;
+      font-size: 0.7rem;
     }
 
     /* Quick Links */
@@ -1027,133 +977,121 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
     .quick-link-item {
       display: flex;
       align-items: center;
-      padding: 0.75rem;
-      text-decoration: none;
+      padding: 0.75rem 1rem;
       color: #475569;
-      border-radius: 8px;
+      text-decoration: none;
+      border-radius: 12px;
       transition: all 0.3s ease;
       font-weight: 500;
     }
 
     .quick-link-item:hover {
-      background: #f8fafc;
-      color: #007bff;
-      transform: translateX(5px);
+      background: linear-gradient(135deg, #007bff, #0056b3);
+      color: white;
+      transform: translateX(4px);
       text-decoration: none;
     }
 
     .quick-link-item i {
-      width: 20px;
       margin-right: 0.75rem;
-      color: #64748b;
-      transition: color 0.3s ease;
-    }
-
-    .quick-link-item:hover i {
-      color: #007bff;
+      width: 16px;
+      text-align: center;
     }
 
     /* Promotional Banner */
     .promo-banner {
       background: linear-gradient(135deg, #7c3aed, #a855f7);
-      border-radius: 12px;
+      border-radius: 16px;
       padding: 1.5rem;
       color: white;
-      text-align: center;
       position: relative;
       overflow: hidden;
+      text-align: center;
     }
 
-    .promo-content {
-      position: relative;
-      z-index: 2;
-    }
-
-    .promo-banner h6 {
+    .promo-content h6 {
       font-weight: 700;
       margin-bottom: 0.5rem;
-      font-size: 1rem;
+      color: white;
     }
 
-    .promo-banner p {
-      font-size: 0.85rem;
+    .promo-content p {
+      font-size: 0.8rem;
       margin-bottom: 1rem;
       opacity: 0.9;
     }
 
     .btn-promo {
-      background: rgba(255, 255, 255, 0.2);
-      color: white;
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: white;
+      color: #7c3aed;
+      border: none;
       padding: 0.5rem 1rem;
-      border-radius: 6px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.8rem;
       text-decoration: none;
-      font-weight: 500;
       transition: all 0.3s ease;
-      font-size: 0.85rem;
     }
 
     .btn-promo:hover {
-      background: rgba(255, 255, 255, 0.3);
-      color: white;
-      text-decoration: none;
+      background: #f3f4f6;
       transform: translateY(-1px);
+      color: #7c3aed;
+      text-decoration: none;
     }
 
     .promo-decoration {
       position: absolute;
       top: -10px;
       right: -10px;
-      font-size: 2rem;
-      opacity: 0.3;
-      transform: rotate(15deg);
+      font-size: 3rem;
+      opacity: 0.2;
     }
 
-    /* Search Container */
+    /* ======================================
+       SEARCH
+    ====================================== */
     .search-container {
       position: relative;
-      flex: 1;
-      max-width: 500px;
-      margin: 0 1rem;
+      width: 100%;
+      max-width: 450px;
     }
 
     .search-wrapper {
       position: relative;
-      width: 100%;
     }
 
     .search-input-group {
       position: relative;
       display: flex;
-      width: 100%;
+      align-items: center;
     }
 
     .search-input {
-      background: #f8fafc;
+      width: 100%;
+      padding: 0.75rem 3rem 0.75rem 1rem;
       border: 2px solid #e2e8f0;
-      color: #1e293b;
       border-radius: 25px;
-      padding: 0.75rem 3.5rem 0.75rem 1.25rem;
+      background: #f8fafc;
+      color: #1e293b;
       font-size: 0.9rem;
       transition: all 0.3s ease;
-      width: 100%;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: #007bff;
+      background: white;
+      box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.1);
     }
 
     .search-input::placeholder {
       color: #94a3b8;
     }
 
-    .search-input:focus {
-      outline: none;
-      background: white;
-      border-color: #007bff;
-      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1), 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-
     .search-btn {
       position: absolute;
-      right: 8px;
+      right: 6px;
       top: 50%;
       transform: translateY(-50%);
       background: linear-gradient(135deg, #007bff, #0056b3);
@@ -1166,16 +1104,13 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
       align-items: center;
       justify-content: center;
       transition: all 0.3s ease;
-      box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
     }
 
     .search-btn:hover {
-      background: linear-gradient(135deg, #0056b3, #004085);
       transform: translateY(-50%) scale(1.05);
-      box-shadow: 0 4px 8px rgba(0, 123, 255, 0.4);
+      box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
     }
 
-    /* Search Dropdown */
     .search-dropdown {
       position: absolute;
       top: calc(100% + 8px);
@@ -1183,15 +1118,15 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
       right: 0;
       background: white;
       border-radius: 16px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
       z-index: 1000;
-      max-height: 500px;
+      max-height: 400px;
       overflow-y: auto;
       border: 1px solid #e2e8f0;
     }
 
     .search-section {
-      padding: 0.5rem 0;
+      padding: 1rem 0;
     }
 
     .search-section:not(:last-child) {
@@ -1199,33 +1134,29 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
     }
 
     .search-section-header {
-      padding: 0.75rem 1.25rem 0.5rem;
+      padding: 0 1.5rem 0.5rem;
       font-size: 0.8rem;
       font-weight: 600;
       color: #64748b;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      display: flex;
-      align-items: center;
     }
 
-    /* Search Suggestions */
     .search-suggestions {
       padding: 0 0.5rem;
     }
 
     .search-suggestion-item {
+      width: 100%;
       display: flex;
       align-items: center;
-      width: 100%;
-      padding: 0.75rem;
+      padding: 0.5rem 1rem;
       background: transparent;
       border: none;
-      color: #475569;
       text-align: left;
+      color: #475569;
       border-radius: 8px;
       transition: all 0.3s ease;
-      font-size: 0.9rem;
     }
 
     .search-suggestion-item:hover {
@@ -1233,7 +1164,6 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
       color: #007bff;
     }
 
-    /* Search Results */
     .search-results {
       padding: 0 0.5rem;
     }
@@ -1241,26 +1171,27 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
     .search-result-item {
       display: flex;
       align-items: center;
-      padding: 0.75rem;
+      padding: 1rem;
+      color: inherit;
       text-decoration: none;
-      color: #475569;
-      border-radius: 8px;
+      border-radius: 12px;
       transition: all 0.3s ease;
-      margin-bottom: 0.25rem;
+      margin-bottom: 0.5rem;
     }
 
     .search-result-item:hover {
       background: #f8fafc;
-      color: #007bff;
+      transform: translateX(4px);
       text-decoration: none;
+      color: inherit;
     }
 
     .result-image {
-      width: 45px;
-      height: 45px;
+      width: 50px;
+      height: 50px;
       border-radius: 8px;
       overflow: hidden;
-      margin-right: 0.75rem;
+      margin-right: 1rem;
       flex-shrink: 0;
     }
 
@@ -1272,87 +1203,141 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
 
     .result-info {
       flex: 1;
-      min-width: 0;
     }
 
     .result-name {
-      font-weight: 500;
-      margin-bottom: 0.125rem;
+      font-weight: 600;
       font-size: 0.9rem;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      margin-bottom: 0.25rem;
+      color: #1e293b;
     }
 
     .result-category {
-      color: #94a3b8;
       font-size: 0.75rem;
-      margin-bottom: 0.125rem;
+      color: #64748b;
+      margin-bottom: 0.25rem;
     }
 
     .result-price {
+      font-weight: 700;
       color: #007bff;
-      font-weight: 600;
       font-size: 0.85rem;
     }
 
     .result-rating {
       display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      margin-left: 0.5rem;
+      align-items: center;
+      gap: 0.25rem;
+      margin-left: 1rem;
     }
 
     .rating-text {
-      color: #94a3b8;
       font-size: 0.75rem;
-      margin-top: 0.125rem;
+      color: #64748b;
     }
 
-    /* No Results */
     .no-results {
-      padding: 2rem 1.25rem;
       text-align: center;
+      padding: 2rem 1.5rem;
       color: #64748b;
     }
 
     .search-suggestions-text {
-      margin-top: 0.5rem;
       font-size: 0.8rem;
-      color: #94a3b8;
+      margin-top: 0.5rem;
+      opacity: 0.8;
     }
 
-    /* Search All Link */
     .search-all-link {
       display: flex;
       align-items: center;
-      padding: 1rem 1.25rem;
+      padding: 1rem 1.5rem;
       color: #007bff;
       text-decoration: none;
-      font-weight: 500;
+      font-weight: 600;
       transition: all 0.3s ease;
-      background: #f8fafc;
-      border-radius: 0 0 16px 16px;
     }
 
     .search-all-link:hover {
-      background: #f1f5f9;
+      background: #f8fafc;
       color: #0056b3;
       text-decoration: none;
     }
 
-    /* Cart */
-    .cart-link {
-      position: relative;
+    /* ======================================
+       ACCOUNT DROPDOWN
+    ====================================== */
+    .account-dropdown {
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+      padding: 0;
+      min-width: 280px;
     }
 
-    .cart-icon {
-      position: relative;
+    .account-header {
+      background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+      padding: 1.5rem;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .user-info {
       display: flex;
       align-items: center;
+      gap: 1rem;
     }
 
-    .cart-badge {
+    .user-avatar-small {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      object-fit: cover;
+    }
+
+    .user-name {
+      font-weight: 700;
+      color: #1e293b;
+      font-size: 1rem;
+    }
+
+    .user-email {
+      color: #64748b;
+      font-size: 0.85rem;
+    }
+
+    .dropdown-item {
+      padding: 0.75rem 1.5rem;
+      color: #475569;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      border-radius: 0;
+    }
+
+    .dropdown-item:hover {
+      background: #f8fafc;
+      color: #007bff;
+      padding-left: 2rem;
+    }
+
+    .dropdown-item.text-danger:hover {
+      background: #fef2f2;
+      color: #dc2626;
+    }
+
+    .dropdown-item i {
+      width: 20px;
+    }
+
+    .dropdown-item .badge {
+      font-size: 0.65rem;
+    }
+
+    /* ======================================
+       CART & WISHLIST BADGES
+    ====================================== */
+    .cart-badge,
+    .wishlist-badge {
       position: absolute;
       top: -8px;
       right: -8px;
@@ -1362,33 +1347,40 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
       min-width: 20px;
       height: 20px;
       font-size: 0.7rem;
-      font-weight: 600;
+      font-weight: 700;
       display: flex;
       align-items: center;
       justify-content: center;
       animation: pulse 2s infinite;
-      border: 2px solid white;
+      box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
     }
 
-    /* Cart Preview */
+    .wishlist-badge {
+      background: linear-gradient(135deg, #ec4899, #db2777);
+      box-shadow: 0 2px 8px rgba(236, 72, 153, 0.3);
+    }
+
+    /* ======================================
+       CART PREVIEW
+    ====================================== */
     .cart-dropdown {
       position: relative;
     }
 
     .cart-preview {
       position: absolute;
-      top: calc(100% + 10px);
+      top: calc(100% + 12px);
       right: 0;
-      width: 350px;
+      width: 320px;
       background: white;
       border-radius: 16px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-      z-index: 1000;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+      border: 1px solid #e2e8f0;
       opacity: 0;
       visibility: hidden;
       transform: translateY(-10px);
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      border: 1px solid #e2e8f0;
+      z-index: 1000;
     }
 
     .cart-preview.show {
@@ -1398,7 +1390,7 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
     }
 
     .cart-preview-header {
-      padding: 1rem 1.25rem;
+      padding: 1.5rem;
       border-bottom: 1px solid #f1f5f9;
       display: flex;
       justify-content: space-between;
@@ -1407,7 +1399,7 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
 
     .cart-preview-header h6 {
       margin: 0;
-      font-weight: 600;
+      font-weight: 700;
       color: #1e293b;
     }
 
@@ -1417,122 +1409,97 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
     }
 
     .cart-preview-items {
-      max-height: 300px;
+      max-height: 240px;
       overflow-y: auto;
-      padding: 0.5rem;
+      padding: 1rem;
     }
 
     .cart-preview-item {
       display: flex;
       align-items: center;
-      padding: 0.75rem;
-      border-radius: 8px;
-      transition: background 0.3s ease;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #f8fafc;
     }
 
-    .cart-preview-item:hover {
-      background: #f8fafc;
+    .cart-preview-item:last-child {
+      border-bottom: none;
     }
 
-    .cart-preview-item .item-image {
+    .item-image {
       width: 50px;
       height: 50px;
-      border-radius: 6px;
+      border-radius: 8px;
       overflow: hidden;
-      margin-right: 0.75rem;
+      margin-right: 1rem;
       flex-shrink: 0;
     }
 
-    .cart-preview-item .item-image img {
+    .item-image img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
 
-    .cart-preview-item .item-details {
+    .item-details {
       flex: 1;
-      min-width: 0;
     }
 
-    .cart-preview-item .item-name {
-      font-weight: 500;
-      margin-bottom: 0.25rem;
-      font-size: 0.9rem;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .cart-preview-item .item-quantity {
-      color: #64748b;
-      font-size: 0.8rem;
-      margin-bottom: 0.125rem;
-    }
-
-    .cart-preview-item .item-price {
-      color: #007bff;
+    .item-name {
       font-weight: 600;
+      font-size: 0.85rem;
+      color: #1e293b;
+      margin-bottom: 0.25rem;
+      line-height: 1.3;
+    }
+
+    .item-quantity {
+      font-size: 0.75rem;
+      color: #64748b;
+      margin-bottom: 0.25rem;
+    }
+
+    .item-price {
+      font-weight: 700;
+      color: #007bff;
       font-size: 0.85rem;
     }
 
     .more-items {
-      padding: 0.75rem 1.25rem;
       text-align: center;
+      padding: 1rem 0;
       color: #64748b;
       font-size: 0.85rem;
-      border-top: 1px solid #f1f5f9;
+      font-style: italic;
     }
 
     .cart-preview-footer {
-      padding: 1rem 1.25rem;
+      padding: 1.5rem;
       border-top: 1px solid #f1f5f9;
       background: #f8fafc;
-      border-radius: 0 0 16px 16px;
     }
 
     .cart-total {
       text-align: center;
       margin-bottom: 1rem;
-      font-size: 1.1rem;
       color: #1e293b;
+      font-size: 1.1rem;
     }
 
     .cart-actions {
       display: flex;
-      gap: 0.5rem;
+      gap: 0.75rem;
     }
 
     .cart-actions .btn {
       flex: 1;
       padding: 0.5rem;
-      border-radius: 8px;
-      font-weight: 500;
       font-size: 0.85rem;
-      text-decoration: none;
-      text-align: center;
-      transition: all 0.3s ease;
+      border-radius: 8px;
     }
 
-    /* Notification Badge */
-    .notification-badge {
-      position: absolute;
-      top: -5px;
-      right: -5px;
-      background: linear-gradient(135deg, #ef4444, #dc2626);
-      color: white;
-      border-radius: 50%;
-      min-width: 18px;
-      height: 18px;
-      font-size: 0.65rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      animation: pulse 2s infinite;
-      border: 2px solid white;
-    }
-
-    /* Overlays */
+    /* ======================================
+       OVERLAYS
+    ====================================== */
     .search-overlay,
     .mobile-menu-overlay {
       position: fixed;
@@ -1540,7 +1507,7 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0, 0, 0, 0.3);
+      background: rgba(0, 0, 0, 0.5);
       z-index: 999;
       opacity: 0;
       animation: fadeIn 0.3s ease forwards;
@@ -1552,115 +1519,87 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
       }
     }
 
-    /* Animations */
+    /* ======================================
+       ANIMATIONS
+    ====================================== */
     @keyframes pulse {
       0%, 100% {
         transform: scale(1);
       }
       50% {
-        transform: scale(1.1);
+        transform: scale(1.05);
       }
     }
 
-    /* Responsive Design */
-    @media (max-width: 1199px) {
+    /* ======================================
+       RESPONSIVE DESIGN
+    ====================================== */
+    @media (max-width: 1200px) {
+      .mega-menu .col-lg-3,
+      .mega-menu .col-lg-4,
       .mega-menu .col-lg-2 {
-        display: none;
+        margin-bottom: 2rem;
       }
     }
 
-    @media (max-width: 991px) {
+    @media (max-width: 992px) {
       .top-bar {
         display: none;
       }
 
-      .navbar-collapse {
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
-        background: white;
-        border-radius: 0 0 16px 16px;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-        border-top: 1px solid #e2e8f0;
-        padding: 1rem;
-        margin-top: 1px;
-      }
-
       .search-container {
-        order: 3;
-        width: 100%;
-        max-width: none;
         margin: 1rem 0;
-      }
-
-      .navbar-nav {
-        margin-bottom: 1rem;
-      }
-
-      .nav-link {
-        padding: 0.75rem 1rem !important;
-        margin: 0.125rem 0;
-        border-radius: 8px;
+        max-width: none;
       }
 
       .mega-menu {
         position: static;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
         box-shadow: none;
-        border-radius: 12px;
-        border: 1px solid #e2e8f0;
-        margin-top: 0.5rem;
+        border-radius: 0;
+        padding: 1rem 0;
+        background: #f8fafc;
+      }
+
+      .navbar-collapse {
+        background: white;
+        border-radius: 16px;
+        margin-top: 1rem;
         padding: 1rem;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
       }
 
-      .mega-menu .row {
-        flex-direction: column;
-      }
-
-      .mega-menu .col-lg-3,
-      .mega-menu .col-lg-4 {
-        margin-bottom: 1.5rem;
-      }
-
-      .cart-preview {
-        right: -50px;
-        width: 300px;
-      }
-    }
-
-    @media (max-width: 767px) {
-      .brand-name {
-        font-size: 1.3rem;
-      }
-
-      .brand-tagline {
+      .brand-text {
         display: none;
       }
 
-      .nav-link span {
-        font-size: 0.9rem;
-      }
-
-      .search-dropdown {
-        left: -20px;
-        right: -20px;
-      }
-
-      .cart-preview {
-        right: -75px;
-        width: 280px;
+      .nav-badge {
+        position: static;
+        margin-left: 0.5rem;
       }
     }
 
-    @media (max-width: 575px) {
-      .brand-icon {
-        width: 35px;
-        height: 35px;
-        font-size: 1.25rem;
+    @media (max-width: 768px) {
+      .top-bar-left,
+      .top-bar-right {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+      }
+
+      .social-links {
+        margin-left: 0;
+        justify-content: center;
+      }
+
+      .notification-content {
+        padding: 0 2rem;
       }
 
       .brand-name {
-        font-size: 1.2rem;
+        font-size: 1.4rem;
       }
 
       .search-input {
@@ -1668,65 +1607,90 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
       }
 
       .cart-preview {
-        right: -100px;
-        width: 260px;
+        width: 280px;
       }
     }
 
-    /* Accessibility */
-    @media (prefers-reduced-motion: reduce) {
-      *,
-      *::before,
-      *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-        scroll-behavior: auto !important;
+    @media (max-width: 576px) {
+      .navbar {
+        padding: 0.75rem 0;
+      }
+
+      .brand-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 1.2rem;
+      }
+
+      .brand-name {
+        font-size: 1.2rem;
+      }
+
+      .search-dropdown {
+        left: -1rem;
+        right: -1rem;
+      }
+
+      .cart-preview {
+        width: calc(100vw - 2rem);
+        right: -1rem;
+      }
+
+      .nav-link span {
+        display: none;
       }
     }
   `]
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
-  private searchSubject = new BehaviorSubject<string>('');
-  
-  // Component state
+  private searchSubject = new Subject<string>();
+  private isBrowser: boolean;
+
+  // State variables
   searchQuery = '';
   searchResults: Product[] = [];
-  searchSuggestions: string[] = ['Gaming Laptops', 'iPhone', 'Headphones', 'Graphics Cards'];
   showSearchResults = false;
-  
   categories: Category[] = [];
   featuredProducts: Product[] = [];
-  
-  // Menu states
-  megaMenuOpen = false;
-  mobileMenuOpen = false;
-  userMenuOpen = false;
-  cartPreviewOpen = false;
-  showNotificationBar = true;
-  
-  // Cart and user data
   cartItems: CartItem[] = [];
   cartItemCount = 0;
   cartTotal = 0;
-  wishlistItemCount = 5;
-  
-  // Scroll state
+  wishlistItemCount = 0;
+
+  // UI state
   isScrolled = false;
-  
+  showTopBar = true;
+  showNotificationBar = true;
+  mobileMenuOpen = false;
+  megaMenuOpen = false;
+  userMenuOpen = false;
+  cartPreviewOpen = false;
+
+  // Search suggestions
+  searchSuggestions: string[] = [
+    'Gaming laptops',
+    'Wireless headphones',
+    'Mechanical keyboards',
+    '4K monitors'
+  ];
+
+  private searchTimeout: any;
+
   constructor(
     private productService: ProductService,
     private cartService: CartService,
+    private wishlistService: WishlistService,
     private router: Router,
-    @Inject(PLATFORM_ID) private platformId: Object
-  ) {}
+    @Inject(PLATFORM_ID) platformId: Object
+  ) {
+    this.isBrowser = isPlatformBrowser(platformId);
+  }
 
   ngOnInit(): void {
-    this.initializeComponent();
-    this.setupSearchDebounce();
-    this.loadInitialData();
-    this.subscribeToCartChanges();
+    this.initializeData();
+    this.setupSearchSubscription();
+    this.setupCartSubscription();
     this.setupScrollListener();
     this.setupRouterEvents();
   }
@@ -1734,19 +1698,21 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-  }
-
-  private initializeComponent(): void {
-    // Load notification bar state from localStorage
-    if (isPlatformBrowser(this.platformId)) {
-      const notificationDismissed = localStorage.getItem('notificationBarDismissed');
-      this.showNotificationBar = !notificationDismissed;
+    if (this.searchTimeout) {
+      clearTimeout(this.searchTimeout);
     }
   }
 
-  private setupSearchDebounce(): void {
+  /* ======================================
+     INITIALIZATION METHODS
+  ====================================== */
+  private initializeData(): void {
+    this.loadCategories();
+    this.loadFeaturedProducts();
+  }
+
+  private setupSearchSubscription(): void {
     this.searchSubject.pipe(
-      takeUntil(this.destroy$),
       debounceTime(300),
       distinctUntilChanged(),
       switchMap(query => {
@@ -1754,29 +1720,18 @@ export class HeaderComponent implements OnInit, OnDestroy {
           return this.productService.searchProducts(query);
         }
         return of([]);
-      })
-    ).subscribe({
-      next: (results) => {
-        this.searchResults = results;
-      },
-      error: (error) => {
-        console.error('Search error:', error);
-        this.searchResults = [];
-      }
+      }),
+      takeUntil(this.destroy$)
+    ).subscribe(results => {
+      this.searchResults = results;
     });
   }
 
-  private loadInitialData(): void {
-    this.loadCategories();
-    this.loadFeaturedProducts();
-  }
-
-  private subscribeToCartChanges(): void {
+  private setupCartSubscription(): void {
     this.cartService.getCartItems().pipe(
       takeUntil(this.destroy$)
     ).subscribe(items => {
       this.cartItems = items;
-      this.cartTotal = this.cartService.getCartTotal();
     });
 
     this.cartService.getCartItemCount().pipe(
@@ -1784,18 +1739,34 @@ export class HeaderComponent implements OnInit, OnDestroy {
     ).subscribe(count => {
       this.cartItemCount = count;
     });
+
+    // Calculate cart total
+    this.cartService.getCartItems().pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(items => {
+      this.cartTotal = items.reduce((total, item) => 
+        total + (item.product.price * item.quantity), 0
+      );
+    });
+
+    // Subscribe to wishlist count
+    this.wishlistService.getWishlistItemCount().pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(count => {
+      this.wishlistItemCount = count;
+    });
   }
 
   private setupScrollListener(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      window.addEventListener('scroll', this.onScroll.bind(this), { passive: true });
+    if (this.isBrowser) {
+      this.handleScroll();
     }
   }
 
   private setupRouterEvents(): void {
     this.router.events.pipe(
-      takeUntil(this.destroy$),
-      filter(event => event instanceof NavigationEnd)
+      filter(event => event instanceof NavigationEnd),
+      takeUntil(this.destroy$)
     ).subscribe(() => {
       this.closeMobileMenu();
       this.closeMegaMenu();
@@ -1804,101 +1775,59 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   @HostListener('window:scroll', ['$event'])
-  onScroll(): void {
-    if (isPlatformBrowser(this.platformId)) {
+  private handleScroll(): void {
+    if (this.isBrowser) {
       this.isScrolled = window.scrollY > 100;
     }
   }
 
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: Event): void {
-    const target = event.target as HTMLElement;
-    
-    // Close search results if clicking outside
-    if (this.showSearchResults && !target.closest('.search-container')) {
-      this.hideSearchResults();
-    }
-    
-    // Close mega menu if clicking outside
-    if (this.megaMenuOpen && !target.closest('.mega-dropdown')) {
-      this.closeMegaMenu();
-    }
-    
-    // Close cart preview if clicking outside
-    if (this.cartPreviewOpen && !target.closest('.cart-dropdown')) {
-      this.hideCartPreview();
-    }
-  }
-
-  @HostListener('window:keydown', ['$event'])
-  onKeyDown(event: KeyboardEvent): void {
-    // Close dropdowns on Escape key
-    if (event.key === 'Escape') {
-      this.hideSearchResults();
-      this.closeMegaMenu();
-      this.hideCartPreview();
-      this.closeMobileMenu();
-    }
-    
-    // Focus search on Ctrl/Cmd + K
-    if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
-      event.preventDefault();
-      this.focusSearch();
-    }
-  }
-
-  // Data loading methods
+  /* ======================================
+     DATA LOADING METHODS
+  ====================================== */
   private loadCategories(): void {
-    this.productService.getCategories().pipe(
-      takeUntil(this.destroy$)
-    ).subscribe({
+    this.productService.getCategories().subscribe({
       next: (categories) => {
-        this.categories = categories.slice(0, 6); // Show only first 6 categories
+        this.categories = categories.slice(0, 6);
       },
       error: (error) => {
         console.error('Error loading categories:', error);
-        this.categories = [];
       }
     });
   }
 
   private loadFeaturedProducts(): void {
-    this.productService.getFeaturedProducts(4).pipe(
-      takeUntil(this.destroy$)
-    ).subscribe({
+    this.productService.getFeaturedProducts(4).subscribe({
       next: (products) => {
         this.featuredProducts = products;
       },
       error: (error) => {
         console.error('Error loading featured products:', error);
-        this.featuredProducts = [];
       }
     });
   }
 
-  // Search methods
-  onSearchInput(): void {
-    this.searchSubject.next(this.searchQuery);
-    this.showSearchResults = true;
-  }
-
+  /* ======================================
+     SEARCH METHODS
+  ====================================== */
   onSearchFocus(): void {
     this.showSearchResults = true;
   }
 
   onSearchBlur(): void {
-    // Delay hiding to allow clicks on search results
+    // Delay to allow clicks on search results
     setTimeout(() => {
-      if (!document.activeElement?.closest('.search-dropdown')) {
-        this.showSearchResults = false;
-      }
+      this.showSearchResults = false;
     }, 200);
+  }
+
+  onSearchInput(): void {
+    this.searchSubject.next(this.searchQuery);
   }
 
   performSearch(): void {
     if (this.searchQuery.trim()) {
+      this.addToSearchSuggestions(this.searchQuery);
       this.hideSearchResults();
-      this.addToSearchHistory(this.searchQuery);
       this.router.navigate(['/products'], { 
         queryParams: { q: this.searchQuery } 
       });
@@ -1914,35 +1843,20 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.showSearchResults = false;
   }
 
-  private focusSearch(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      const searchInput = document.querySelector('.search-input') as HTMLInputElement;
-      if (searchInput) {
-        searchInput.focus();
-        searchInput.select();
-      }
+  private addToSearchSuggestions(query: string): void {
+    if (!this.searchSuggestions.includes(query)) {
+      this.searchSuggestions.unshift(query);
+      this.searchSuggestions = this.searchSuggestions.slice(0, 5);
     }
   }
 
-  private addToSearchHistory(query: string): void {
-    if (isPlatformBrowser(this.platformId)) {
-      try {
-        const history = JSON.parse(localStorage.getItem('searchHistory') || '[]');
-        const updatedHistory = [query, ...history.filter((item: string) => item !== query)].slice(0, 5);
-        localStorage.setItem('searchHistory', JSON.stringify(updatedHistory));
-        this.searchSuggestions = updatedHistory;
-      } catch (error) {
-        console.error('Error saving search history:', error);
-      }
-    }
-  }
-
-  // Menu methods
+  /* ======================================
+     MENU METHODS
+  ====================================== */
   toggleMobileMenu(): void {
     this.mobileMenuOpen = !this.mobileMenuOpen;
     if (this.mobileMenuOpen) {
       this.closeMegaMenu();
-      this.hideCartPreview();
     }
   }
 
@@ -1957,48 +1871,47 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   hideMegaMenu(): void {
-    setTimeout(() => {
-      this.megaMenuOpen = false;
-    }, 100);
+    this.megaMenuOpen = false;
   }
 
   closeMegaMenu(): void {
     this.megaMenuOpen = false;
   }
 
-  // Cart methods
   showCartPreview(): void {
-    if (this.cartItems.length > 0) {
-      this.cartPreviewOpen = true;
-    }
+    this.cartPreviewOpen = true;
   }
 
   hideCartPreview(): void {
-    setTimeout(() => {
-      this.cartPreviewOpen = false;
-    }, 100);
+    this.cartPreviewOpen = false;
   }
 
-  // Notification methods
+  /* ======================================
+     NOTIFICATION METHODS
+  ====================================== */
   closeNotificationBar(): void {
     this.showNotificationBar = false;
-    if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem('notificationBarDismissed', 'true');
-    }
   }
 
-  // User methods
+  /* ======================================
+     USER METHODS
+  ====================================== */
   signOut(event: Event): void {
     event.preventDefault();
-    // Implement sign out logic
-    console.log('Signing out...');
+    console.log('User signed out');
+    // Implement sign out logic here
   }
 
-  // Utility methods
+  /* ======================================
+     UTILITY METHODS
+  ====================================== */
   getStars(rating: number): number[] {
     return Array(Math.floor(rating)).fill(0);
   }
 
+  /* ======================================
+     TRACKING METHODS
+  ====================================== */
   trackByCategory(index: number, category: Category): number {
     return category.id;
   }

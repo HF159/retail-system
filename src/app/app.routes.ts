@@ -27,6 +27,11 @@ export const routes: Routes = [
     title: 'Shopping Cart - TechNova'
   },
   {
+    path: 'wishlist',
+    loadComponent: () => import('./components/wishlist/wishlist.component').then(m => m.WishlistComponent),
+    title: 'Wishlist - TechNova'
+  },
+  {
     path: 'deals',
     loadComponent: () => import('./components/deals/deals.component').then(m => m.DealsComponent),
     title: 'Deals - TechNova'

@@ -80,23 +80,16 @@ import { trigger, transition, style, animate } from '@angular/animations';
             </div>
 
             <!-- Quick Links -->
-            <div class="col-lg-2 col-md-6">
-              <div class="footer-section" [@slideInUp]="{ delay: '200ms' }">
-                <h5 class="footer-title">
-                  <i class="bi bi-lightning me-2"></i>
-                  Quick Links
-                </h5>
-                <ul class="footer-links">
+            <div class="col-lg-2 col-md-4">
+                <h5 class="fw-semibold mb-3 text-primary">Quick Links</h5>
+                <ul class="list-unstyled footer-links">
                   <li><a routerLink="/" class="footer-link">Home</a></li>
                   <li><a routerLink="/products" class="footer-link">All Products</a></li>
                   <li><a routerLink="/deals" class="footer-link">Special Deals</a></li>
-                  <li><a href="#" class="footer-link">New Arrivals</a></li>
-                  <li><a href="#" class="footer-link">Best Sellers</a></li>
-                  <li><a href="#" class="footer-link">Reviews</a></li>
+                  <li><a routerLink="/wishlist" class="footer-link">Wishlist</a></li>
+                  <li><a routerLink="/cart" class="footer-link">Shopping Cart</a></li>
                 </ul>
-              </div>
             </div>
-
             <!-- Product Categories -->
             <div class="col-lg-2 col-md-6">
               <div class="footer-section" [@slideInUp]="{ delay: '400ms' }">

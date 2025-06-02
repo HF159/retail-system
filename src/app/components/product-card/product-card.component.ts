@@ -4,6 +4,8 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { trigger, transition, style, animate, state } from '@angular/animations';
 import { Product } from '../../models/product.model';
+import { WishlistService } from '../../services/wishlist.service';
+import { CartService } from '../../services/cart.service';
 
 @Component({
   selector: 'app-product-card',
@@ -52,6 +54,7 @@ import { Product } from '../../models/product.model';
         <!-- Quick Actions -->
         <div class="product-actions" [@actionsSlide]="hoverState">
           <button class="btn-action btn-wishlist" 
+                  [class.active]="isInWishlist"
                   (click)="addToWishlist($event)"
                   [title]="isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'">
             <i class="bi" [class.bi-heart]="!isInWishlist" [class.bi-heart-fill]="isInWishlist"></i>
@@ -134,12 +137,12 @@ import { Product } from '../../models/product.model';
         
         <!-- Product Price -->
         <div class="product-price" [@priceSlide]>
-          <span class="current-price">₹{{product.price | number:'1.2-2'}}</span>
+          <span class="current-price">\${{product.price | number:'1.2-2'}}</span>
           <span *ngIf="product.originalPrice" class="original-price">
-            ₹{{product.originalPrice | number:'1.2-2'}}
+            \${{product.originalPrice | number:'1.2-2'}}
           </span>
           <span *ngIf="product.discount" class="savings">
-            Save ₹{{(product.originalPrice! - product.price) | number:'1.2-2'}}
+            Save \${{(product.originalPrice! - product.price) | number:'1.2-2'}}
           </span>
         </div>
 
@@ -924,6 +927,11 @@ export class ProductCardComponent implements OnInit, OnDestroy {
 
   private hoverTimeout?: number;
 
+  constructor(
+    private wishlistService: WishlistService,
+    private cartService: CartService
+  ) {}
+
   ngOnInit(): void {
     this.currentImage = this.product.images[0] || '';
     this.checkWishlistStatus();
@@ -963,7 +971,9 @@ export class ProductCardComponent implements OnInit, OnDestroy {
     this.isAddingToCart = true;
     this.cartButtonState = 'adding';
     
-    // Simulate API call
+    // Add to cart via service
+    this.cartService.addToCart(this.product, 1);
+    
     setTimeout(() => {
       this.cartButtonState = 'added';
       this.addToCartClick.emit(this.product);
@@ -979,7 +989,19 @@ export class ProductCardComponent implements OnInit, OnDestroy {
     event.preventDefault();
     event.stopPropagation();
     
-    this.isInWishlist = !this.isInWishlist;
+    if (this.isInWishlist) {
+      this.wishlistService.removeFromWishlist(this.product.id);
+      console.log('Removed from wishlist:', this.product.name);
+    } else {
+      const added = this.wishlistService.addToWishlist(this.product);
+      if (added) {
+        console.log('Added to wishlist:', this.product.name);
+      } else {
+        console.log('Already in wishlist:', this.product.name);
+      }
+    }
+    
+    this.checkWishlistStatus();
     this.addToWishlistClick.emit(this.product);
     
     // Add haptic feedback for mobile
@@ -1033,8 +1055,6 @@ export class ProductCardComponent implements OnInit, OnDestroy {
   }
 
   private checkWishlistStatus(): void {
-    // Check if product is in wishlist
-    // This would typically check against a service
-    this.isInWishlist = false; // Default to false
+    this.isInWishlist = this.wishlistService.isInWishlist(this.product.id);
   }
 }
