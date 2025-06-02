@@ -1,10 +1,10 @@
+// Update your app.component.ts to include the chat widget
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from './components/header/header.component';
 import { FooterComponent } from './components/footer/footer.component';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-
+import { ChatWidgetComponent } from './components/chat/chat-widget.component';
 
 @Component({
   selector: 'app-root',
@@ -13,7 +13,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     CommonModule,
     RouterOutlet,
     HeaderComponent,
-    FooterComponent
+    FooterComponent,
+    ChatWidgetComponent
   ],
   template: `
     <div class="app-container">
@@ -22,6 +23,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
         <router-outlet></router-outlet>
       </main>
       <app-footer></app-footer>
+      <app-chat-widget></app-chat-widget>
     </div>
   `,
   styles: [`

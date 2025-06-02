@@ -3,7 +3,6 @@ import { Component, OnInit, OnDestroy, HostListener, PLATFORM_ID, Inject } from 
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { trigger, transition, style, animate, state } from '@angular/animations';
 import { ProductService } from '../../services/product.service';
 import { CartService } from '../../services/cart.service';
 import { Category, Product, CartItem } from '../../models/product.model';
@@ -209,15 +208,6 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
                   <span class="nav-badge">Hot</span>
                 </a>
               </li>
-
-              <li class="nav-item">
-                <a class="nav-link" 
-                   href="#" 
-                   (click)="$event.preventDefault(); closeMobileMenu()">
-                  <i class="bi bi-headset me-1"></i>
-                  <span>Support</span>
-                </a>
-              </li>
             </ul>
 
             <!-- Search Bar -->
@@ -246,7 +236,7 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
                      *ngIf="showSearchResults && (searchResults.length > 0 || searchQuery.length > 0)">
                   
                   <!-- Search Suggestions -->
-                  <div class="search-section" *ngIf="searchSuggestions.length > 0">
+                  <div class="search-section" *ngIf="searchSuggestions.length > 0 && searchQuery.length === 0">
                     <div class="search-section-header">
                       <i class="bi bi-clock-history me-2"></i>
                       Recent Searches
@@ -265,10 +255,10 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
                   <div class="search-section" *ngIf="searchResults.length > 0">
                     <div class="search-section-header">
                       <i class="bi bi-box me-2"></i>
-                      Products
+                      Products ({{searchResults.length}})
                     </div>
                     <div class="search-results">
-                      <a *ngFor="let product of searchResults; trackBy: trackByProduct" 
+                      <a *ngFor="let product of searchResults.slice(0, 5); trackBy: trackByProduct" 
                          class="search-result-item"
                          [routerLink]="['/products', product.id]"
                          (click)="hideSearchResults()">
@@ -324,7 +314,8 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
                   href="#" 
                   id="accountDropdown" 
                   role="button" 
-                  data-bs-toggle="dropdown">
+                  data-bs-toggle="dropdown"
+                  [attr.aria-expanded]="userMenuOpen">
                   <i class="bi bi-person me-1"></i>
                   <span class="d-none d-lg-inline">Account</span>
                 </a>
@@ -344,39 +335,39 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
                   
                   <!-- Account Menu Items -->
                   <li>
-                    <a class="dropdown-item" routerLink="/account">
+                    <a class="dropdown-item" routerLink="/account" (click)="$event.preventDefault()">
                       <i class="bi bi-speedometer2 me-2"></i>
                       Dashboard
                     </a>
                   </li>
                   <li>
-                    <a class="dropdown-item" [routerLink]="['/account', 'profile']">
+                    <a class="dropdown-item" href="#" (click)="$event.preventDefault()">
                       <i class="bi bi-person me-2"></i>
                       My Profile
                     </a>
                   </li>
                   <li>
-                    <a class="dropdown-item" [routerLink]="['/account', 'orders']">
+                    <a class="dropdown-item" href="#" (click)="$event.preventDefault()">
                       <i class="bi bi-bag me-2"></i>
                       My Orders
                       <span class="badge bg-primary ms-auto">3</span>
                     </a>
                   </li>
                   <li>
-                    <a class="dropdown-item" [routerLink]="['/account', 'wishlist']">
+                    <a class="dropdown-item" href="#" (click)="$event.preventDefault()">
                       <i class="bi bi-heart me-2"></i>
                       Wishlist
-                      <span class="badge bg-secondary ms-auto">12</span>
+                      <span class="badge bg-secondary ms-auto">{{wishlistItemCount}}</span>
                     </a>
                   </li>
                   <li>
-                    <a class="dropdown-item" [routerLink]="['/account', 'addresses']">
+                    <a class="dropdown-item" href="#" (click)="$event.preventDefault()">
                       <i class="bi bi-geo-alt me-2"></i>
                       Addresses
                     </a>
                   </li>
                   <li>
-                    <a class="dropdown-item" [routerLink]="['/account', 'settings']">
+                    <a class="dropdown-item" href="#" (click)="$event.preventDefault()">
                       <i class="bi bi-gear me-2"></i>
                       Settings
                     </a>
@@ -394,7 +385,8 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
               <!-- Wishlist -->
               <li class="nav-item">
                 <a class="nav-link position-relative" 
-                   [routerLink]="['/account', 'wishlist']"
+                   href="#"
+                   (click)="$event.preventDefault()"
                    title="Wishlist">
                   <i class="bi bi-heart"></i>
                   <span class="d-none d-lg-inline ms-1">Wishlist</span>
@@ -454,7 +446,7 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
                       <a class="btn btn-outline-primary btn-sm" routerLink="/cart">
                         View Cart
                       </a>
-                      <a class="btn btn-primary btn-sm" routerLink="/checkout">
+                      <a class="btn btn-primary btn-sm" href="#" (click)="$event.preventDefault()">
                         Checkout
                       </a>
                     </div>
@@ -465,6 +457,19 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
           </div>
         </div>
       </nav>
+
+      <!-- Notification Bar -->
+      <div class="notification-bar" *ngIf="showNotificationBar">
+        <div class="container-fluid">
+          <div class="notification-content">
+            <i class="bi bi-megaphone me-2"></i>
+            <span>🎉 Flash Sale: Up to 50% off selected items! Limited time offer.</span>
+            <button class="btn-close-notification" (click)="closeNotificationBar()">
+              <i class="bi bi-x"></i>
+            </button>
+          </div>
+        </div>
+      </div>
     </header>
 
     <!-- Search Overlay -->
@@ -496,6 +501,100 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     }
 
+    /* Top Bar */
+    .top-bar {
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      color: white;
+      padding: 0.5rem 0;
+      font-size: 0.85rem;
+    }
+
+    .top-bar-left,
+    .top-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .top-bar-right {
+      justify-content: flex-end;
+    }
+
+    .top-bar-item {
+      display: flex;
+      align-items: center;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .social-links {
+      display: flex;
+      gap: 0.5rem;
+      margin-left: 1rem;
+    }
+
+    .social-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      color: white;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .social-link:hover {
+      background: rgba(14, 165, 233, 0.8);
+      transform: scale(1.1);
+      color: white;
+    }
+
+    /* Notification Bar */
+    .notification-bar {
+      background: linear-gradient(135deg, #f59e0b, #f97316);
+      color: white;
+      padding: 0.5rem 0;
+      font-size: 0.9rem;
+      animation: slideDown 0.5s ease;
+    }
+
+    .notification-content {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      position: relative;
+    }
+
+    .btn-close-notification {
+      background: transparent;
+      border: none;
+      color: white;
+      position: absolute;
+      right: 0;
+      padding: 0.25rem;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+    }
+
+    .btn-close-notification:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    @keyframes slideDown {
+      from {
+        transform: translateY(-100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    /* Account Dropdown */
     .account-dropdown {
       width: 280px;
       padding: 0;
@@ -572,58 +671,6 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
       justify-content: center;
     }
 
-    
-
-    /* Top Bar */
-    .top-bar {
-      background: linear-gradient(135deg, #0f172a, #1e293b);
-      color: white;
-      padding: 0.5rem 0;
-      font-size: 0.85rem;
-    }
-
-    .top-bar-left,
-    .top-bar-right {
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-    }
-
-    .top-bar-right {
-      justify-content: flex-end;
-    }
-
-    .top-bar-item {
-      display: flex;
-      align-items: center;
-      color: rgba(255, 255, 255, 0.9);
-    }
-
-    .social-links {
-      display: flex;
-      gap: 0.5rem;
-      margin-left: 1rem;
-    }
-
-    .social-link {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 24px;
-      height: 24px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 50%;
-      color: white;
-      text-decoration: none;
-      transition: all 0.3s ease;
-    }
-
-    .social-link:hover {
-      background: rgba(14, 165, 233, 0.8);
-      transform: scale(1.1);
-      color: white;
-    }
-
     /* Brand */
     .navbar-brand {
       text-decoration: none;
@@ -671,17 +718,16 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
       font-size: 0.7rem;
       color: #64748b;
       font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 1px;
     }
 
     /* Mobile Toggle */
     .navbar-toggler {
       border: none;
-      padding: 0.5rem;
+      padding: 0.25rem;
+      position: relative;
+      width: 35px;
+      height: 35px;
       background: transparent;
-      border-radius: 8px;
-      transition: all 0.3s ease;
     }
 
     .navbar-toggler:focus {
@@ -689,26 +735,25 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
     }
 
     .navbar-toggler-icon {
-      background: none;
-      width: 24px;
-      height: 18px;
       position: relative;
+      width: 25px;
+      height: 20px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
     }
 
     .navbar-toggler-icon span {
-      width: 100%;
+      display: block;
       height: 2px;
+      width: 100%;
       background: #1e293b;
       border-radius: 1px;
       transition: all 0.3s ease;
-      transform-origin: center;
     }
 
     .navbar-toggler[aria-expanded="true"] .navbar-toggler-icon span:nth-child(1) {
-      transform: translateY(8px) rotate(45deg);
+      transform: rotate(45deg) translate(6px, 6px);
     }
 
     .navbar-toggler[aria-expanded="true"] .navbar-toggler-icon span:nth-child(2) {
@@ -716,7 +761,7 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
     }
 
     .navbar-toggler[aria-expanded="true"] .navbar-toggler-icon span:nth-child(3) {
-      transform: translateY(-8px) rotate(-45deg);
+      transform: rotate(-45deg) translate(6px, -6px);
     }
 
     /* Navigation */
@@ -724,37 +769,37 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
       padding: 1rem 0;
     }
 
+    .navbar-nav {
+      align-items: center;
+    }
+
     .nav-link {
-      color: #1e293b !important;
+      color: #475569 !important;
       font-weight: 500;
-      transition: all 0.3s ease;
       padding: 0.75rem 1rem !important;
-      border-radius: 12px;
-      margin: 0 0.25rem;
+      border-radius: 8px;
+      margin: 0 0.125rem;
+      transition: all 0.3s ease;
+      position: relative;
       display: flex;
       align-items: center;
-      position: relative;
     }
 
     .nav-link:hover,
     .nav-link.active {
-      color: #0ea5e9 !important;
-      background: rgba(14, 165, 233, 0.1);
+      color: #007bff !important;
+      background: rgba(0, 123, 255, 0.1);
       transform: translateY(-1px);
     }
 
     .nav-badge {
-      position: absolute;
-      top: 0.25rem;
-      right: 0.25rem;
       background: linear-gradient(135deg, #ef4444, #dc2626);
       color: white;
       font-size: 0.6rem;
-      padding: 0.2rem 0.4rem;
+      padding: 2px 6px;
       border-radius: 10px;
+      margin-left: 0.5rem;
       font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
       animation: pulse 2s infinite;
     }
 
@@ -770,9 +815,8 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
       right: 0;
       background: white;
       border: none;
-      border-radius: 0 0 20px 20px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-      margin-top: 0;
+      border-radius: 0 0 16px 16px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
       padding: 2rem 0;
       opacity: 0;
       visibility: hidden;
@@ -789,10 +833,11 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
 
     .mega-menu-title {
       color: #1e293b;
-      font-weight: 700;
-      margin-bottom: 1.5rem;
+      font-weight: 600;
+      font-size: 1rem;
+      margin-bottom: 1rem;
       padding-bottom: 0.5rem;
-      border-bottom: 2px solid #e2e8f0;
+      border-bottom: 2px solid #f1f5f9;
       display: flex;
       align-items: center;
     }
@@ -809,36 +854,36 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
       align-items: center;
       padding: 0.75rem;
       text-decoration: none;
-      color: #64748b;
-      border-radius: 12px;
+      color: #475569;
+      border-radius: 8px;
       transition: all 0.3s ease;
+      position: relative;
     }
 
     .category-item:hover {
       background: #f8fafc;
-      color: #0ea5e9;
+      color: #007bff;
       transform: translateX(5px);
       text-decoration: none;
     }
 
     .category-icon {
-      width: 40px;
-      height: 40px;
-      background: rgba(14, 165, 233, 0.1);
-      border-radius: 10px;
+      width: 35px;
+      height: 35px;
+      background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
       margin-right: 0.75rem;
-      color: #0ea5e9;
-      font-size: 1.2rem;
+      font-size: 1.1rem;
+      color: #64748b;
       transition: all 0.3s ease;
     }
 
     .category-item:hover .category-icon {
-      background: #0ea5e9;
-      color: white;
-      transform: scale(1.1);
+      background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+      color: #007bff;
     }
 
     .category-info {
@@ -846,9 +891,9 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
     }
 
     .category-name {
-      font-weight: 600;
+      font-weight: 500;
+      margin-bottom: 0.125rem;
       display: block;
-      margin-bottom: 0.25rem;
     }
 
     .category-count {
@@ -857,12 +902,13 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
     }
 
     .category-arrow {
-      color: #cbd5e1;
+      opacity: 0;
       transition: all 0.3s ease;
+      color: #007bff;
     }
 
     .category-item:hover .category-arrow {
-      color: #0ea5e9;
+      opacity: 1;
       transform: translateX(3px);
     }
 
@@ -875,29 +921,32 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
 
     .featured-product-item {
       display: flex;
-      padding: 1rem;
+      align-items: center;
+      padding: 0.75rem;
       text-decoration: none;
-      color: inherit;
-      border-radius: 12px;
+      color: #475569;
+      border-radius: 8px;
       transition: all 0.3s ease;
-      border: 1px solid #f1f5f9;
+      border: 1px solid transparent;
     }
 
     .featured-product-item:hover {
       background: #f8fafc;
+      border-color: #e2e8f0;
       transform: translateY(-2px);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       text-decoration: none;
-      color: inherit;
+      color: #475569;
     }
 
     .product-image {
       position: relative;
       width: 60px;
       height: 60px;
-      margin-right: 1rem;
-      border-radius: 10px;
+      border-radius: 8px;
       overflow: hidden;
+      margin-right: 0.75rem;
+      flex-shrink: 0;
     }
 
     .product-image img {
@@ -908,61 +957,64 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
 
     .product-badge {
       position: absolute;
-      top: -5px;
-      right: -5px;
-      background: #ef4444;
+      top: -2px;
+      right: -2px;
+      background: linear-gradient(135deg, #ef4444, #dc2626);
       color: white;
-      font-size: 0.7rem;
-      padding: 0.25rem 0.5rem;
-      border-radius: 10px;
+      font-size: 0.65rem;
+      padding: 2px 4px;
+      border-radius: 4px;
       font-weight: 600;
     }
 
     .product-details {
       flex: 1;
+      min-width: 0;
     }
 
     .product-name {
+      font-weight: 500;
+      margin-bottom: 0.25rem;
       font-size: 0.9rem;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-      color: #1e293b;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .product-price {
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.25rem;
     }
 
     .current-price {
-      font-weight: 700;
-      color: #0ea5e9;
+      color: #007bff;
+      font-weight: 600;
       font-size: 0.9rem;
     }
 
     .original-price {
-      font-size: 0.8rem;
       color: #94a3b8;
       text-decoration: line-through;
+      font-size: 0.8rem;
     }
 
     .product-rating {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.25rem;
     }
 
     .stars {
       color: #fbbf24;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       display: flex;
     }
 
     .rating-count {
       color: #94a3b8;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
     }
 
     /* Quick Links */
@@ -977,16 +1029,15 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
       align-items: center;
       padding: 0.75rem;
       text-decoration: none;
-      color: #64748b;
-      border-radius: 12px;
+      color: #475569;
+      border-radius: 8px;
       transition: all 0.3s ease;
-      border: 1px solid transparent;
+      font-weight: 500;
     }
 
     .quick-link-item:hover {
-      background: linear-gradient(135deg, rgba(14, 165, 233, 0.05), rgba(56, 189, 248, 0.05));
-      color: #0ea5e9;
-      border-color: rgba(14, 165, 233, 0.2);
+      background: #f8fafc;
+      color: #007bff;
       transform: translateX(5px);
       text-decoration: none;
     }
@@ -994,13 +1045,18 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
     .quick-link-item i {
       width: 20px;
       margin-right: 0.75rem;
-      color: #0ea5e9;
+      color: #64748b;
+      transition: color 0.3s ease;
+    }
+
+    .quick-link-item:hover i {
+      color: #007bff;
     }
 
     /* Promotional Banner */
     .promo-banner {
-      background: linear-gradient(135deg, #0ea5e9, #38bdf8);
-      border-radius: 15px;
+      background: linear-gradient(135deg, #7c3aed, #a855f7);
+      border-radius: 12px;
       padding: 1.5rem;
       color: white;
       text-align: center;
@@ -1008,43 +1064,49 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
       overflow: hidden;
     }
 
-    .promo-content h6 {
-      font-weight: 700;
-      margin-bottom: 0.5rem;
+    .promo-content {
+      position: relative;
+      z-index: 2;
     }
 
-    .promo-content p {
+    .promo-banner h6 {
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
+    }
+
+    .promo-banner p {
       font-size: 0.85rem;
       margin-bottom: 1rem;
       opacity: 0.9;
     }
 
     .btn-promo {
-      background: white;
-      color: #0ea5e9;
-      border: none;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.3);
       padding: 0.5rem 1rem;
-      border-radius: 20px;
-      font-weight: 600;
-      font-size: 0.8rem;
-      transition: all 0.3s ease;
+      border-radius: 6px;
       text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      font-size: 0.85rem;
     }
 
     .btn-promo:hover {
-      background: #f8fafc;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-      color: #0ea5e9;
+      background: rgba(255, 255, 255, 0.3);
+      color: white;
       text-decoration: none;
+      transform: translateY(-1px);
     }
 
     .promo-decoration {
       position: absolute;
       top: -10px;
       right: -10px;
-      font-size: 3rem;
-      opacity: 0.2;
+      font-size: 2rem;
+      opacity: 0.3;
+      transform: rotate(15deg);
     }
 
     /* Search Container */
@@ -1061,71 +1123,75 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
     }
 
     .search-input-group {
+      position: relative;
       display: flex;
-      background: #f8fafc;
-      border: 2px solid #e2e8f0;
-      border-radius: 50px;
-      overflow: hidden;
-      transition: all 0.3s ease;
-    }
-
-    .search-input-group:focus-within {
-      border-color: #0ea5e9;
-      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+      width: 100%;
     }
 
     .search-input {
-      border: none;
-      background: transparent;
-      padding: 0.75rem 1rem;
-      font-size: 0.95rem;
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
       color: #1e293b;
-      flex: 1;
-    }
-
-    .search-input:focus {
-      outline: none;
-      box-shadow: none;
+      border-radius: 25px;
+      padding: 0.75rem 3.5rem 0.75rem 1.25rem;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+      width: 100%;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     }
 
     .search-input::placeholder {
       color: #94a3b8;
     }
 
+    .search-input:focus {
+      outline: none;
+      background: white;
+      border-color: #007bff;
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1), 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
     .search-btn {
-      background: #0ea5e9;
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: linear-gradient(135deg, #007bff, #0056b3);
       border: none;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
       color: white;
-      padding: 0.75rem 1.25rem;
-      transition: all 0.3s ease;
       display: flex;
       align-items: center;
       justify-content: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
     }
 
     .search-btn:hover {
-      background: #0284c7;
-      transform: scale(1.05);
+      background: linear-gradient(135deg, #0056b3, #004085);
+      transform: translateY(-50%) scale(1.05);
+      box-shadow: 0 4px 8px rgba(0, 123, 255, 0.4);
     }
 
     /* Search Dropdown */
     .search-dropdown {
       position: absolute;
-      top: 100%;
+      top: calc(100% + 8px);
       left: 0;
       right: 0;
       background: white;
-      border-radius: 15px;
-      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
-      margin-top: 0.5rem;
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
       z-index: 1000;
-      max-height: 80vh;
+      max-height: 500px;
       overflow-y: auto;
       border: 1px solid #e2e8f0;
     }
 
     .search-section {
-      padding: 1rem 0;
+      padding: 0.5rem 0;
     }
 
     .search-section:not(:last-child) {
@@ -1133,8 +1199,8 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
     }
 
     .search-section-header {
-      padding: 0 1.5rem 0.75rem;
-      font-size: 0.85rem;
+      padding: 0.75rem 1.25rem 0.5rem;
+      font-size: 0.8rem;
       font-weight: 600;
       color: #64748b;
       text-transform: uppercase;
@@ -1143,53 +1209,59 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
       align-items: center;
     }
 
+    /* Search Suggestions */
     .search-suggestions {
-      display: flex;
-      flex-direction: column;
+      padding: 0 0.5rem;
     }
 
     .search-suggestion-item {
-      background: transparent;
-      border: none;
-      padding: 0.75rem 1.5rem;
-      text-align: left;
-      color: #64748b;
-      transition: all 0.3s ease;
       display: flex;
       align-items: center;
+      width: 100%;
+      padding: 0.75rem;
+      background: transparent;
+      border: none;
+      color: #475569;
+      text-align: left;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      font-size: 0.9rem;
     }
 
     .search-suggestion-item:hover {
       background: #f8fafc;
-      color: #0ea5e9;
+      color: #007bff;
     }
 
+    /* Search Results */
     .search-results {
-      display: flex;
-      flex-direction: column;
+      padding: 0 0.5rem;
     }
 
     .search-result-item {
       display: flex;
       align-items: center;
-      padding: 1rem 1.5rem;
+      padding: 0.75rem;
       text-decoration: none;
-      color: inherit;
+      color: #475569;
+      border-radius: 8px;
       transition: all 0.3s ease;
+      margin-bottom: 0.25rem;
     }
 
     .search-result-item:hover {
       background: #f8fafc;
+      color: #007bff;
       text-decoration: none;
-      color: inherit;
     }
 
     .result-image {
-      width: 50px;
-      height: 50px;
-      margin-right: 1rem;
-      border-radius: 10px;
+      width: 45px;
+      height: 45px;
+      border-radius: 8px;
       overflow: hidden;
+      margin-right: 0.75rem;
+      flex-shrink: 0;
     }
 
     .result-image img {
@@ -1200,39 +1272,46 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
 
     .result-info {
       flex: 1;
+      min-width: 0;
     }
 
     .result-name {
-      font-weight: 600;
-      margin-bottom: 0.25rem;
-      color: #1e293b;
+      font-weight: 500;
+      margin-bottom: 0.125rem;
+      font-size: 0.9rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .result-category {
-      font-size: 0.8rem;
-      color: #64748b;
-      margin-bottom: 0.25rem;
+      color: #94a3b8;
+      font-size: 0.75rem;
+      margin-bottom: 0.125rem;
     }
 
     .result-price {
-      font-weight: 700;
-      color: #0ea5e9;
+      color: #007bff;
+      font-weight: 600;
+      font-size: 0.85rem;
     }
 
     .result-rating {
       display: flex;
       flex-direction: column;
-      align-items: center;
-      gap: 0.25rem;
+      align-items: flex-end;
+      margin-left: 0.5rem;
     }
 
     .rating-text {
-      font-size: 0.8rem;
-      color: #64748b;
+      color: #94a3b8;
+      font-size: 0.75rem;
+      margin-top: 0.125rem;
     }
 
+    /* No Results */
     .no-results {
-      padding: 2rem 1.5rem;
+      padding: 2rem 1.25rem;
       text-align: center;
       color: #64748b;
     }
@@ -1243,78 +1322,23 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
       color: #94a3b8;
     }
 
+    /* Search All Link */
     .search-all-link {
       display: flex;
       align-items: center;
-      padding: 1rem 1.5rem;
-      color: #0ea5e9;
+      padding: 1rem 1.25rem;
+      color: #007bff;
       text-decoration: none;
-      font-weight: 600;
+      font-weight: 500;
       transition: all 0.3s ease;
+      background: #f8fafc;
+      border-radius: 0 0 16px 16px;
     }
 
     .search-all-link:hover {
-      background: rgba(14, 165, 233, 0.05);
-      color: #0284c7;
+      background: #f1f5f9;
+      color: #0056b3;
       text-decoration: none;
-    }
-
-    /* User Actions */
-    .user-dropdown .dropdown-toggle::after {
-      display: none;
-    }
-
-    .user-avatar {
-      font-size: 1.5rem;
-      color: #64748b;
-    }
-
-    .user-menu {
-      border-radius: 15px;
-      border: none;
-      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
-      min-width: 250px;
-      padding: 0;
-      overflow: hidden;
-    }
-
-    .user-menu-header {
-      background: linear-gradient(135deg, #0ea5e9, #38bdf8);
-      color: white;
-      padding: 1.5rem;
-    }
-
-    .user-info {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .user-avatar-large {
-      font-size: 2.5rem;
-    }
-
-    .user-name {
-      font-weight: 700;
-      margin-bottom: 0.25rem;
-    }
-
-    .user-email {
-      font-size: 0.85rem;
-      opacity: 0.9;
-    }
-
-    .user-menu .dropdown-item {
-      padding: 0.75rem 1.5rem;
-      color: #64748b;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-    }
-
-    .user-menu .dropdown-item:hover {
-      background: #f8fafc;
-      color: #0ea5e9;
     }
 
     /* Cart */
@@ -1332,33 +1356,18 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
       position: absolute;
       top: -8px;
       right: -8px;
-      background: #ef4444;
+      background: linear-gradient(135deg, #ef4444, #dc2626);
       color: white;
       border-radius: 50%;
-      min-width: 18px;
-      height: 18px;
+      min-width: 20px;
+      height: 20px;
       font-size: 0.7rem;
       font-weight: 600;
       display: flex;
       align-items: center;
       justify-content: center;
       animation: pulse 2s infinite;
-    }
-
-    .notification-badge {
-      position: absolute;
-      top: -5px;
-      right: -5px;
-      background: #ef4444;
-      color: white;
-      border-radius: 50%;
-      min-width: 16px;
-      height: 16px;
-      font-size: 0.6rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      border: 2px solid white;
     }
 
     /* Cart Preview */
@@ -1368,19 +1377,18 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
 
     .cart-preview {
       position: absolute;
-      top: 100%;
+      top: calc(100% + 10px);
       right: 0;
+      width: 350px;
       background: white;
-      border-radius: 15px;
-      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
-      min-width: 350px;
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
       z-index: 1000;
       opacity: 0;
       visibility: hidden;
       transform: translateY(-10px);
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       border: 1px solid #e2e8f0;
-      margin-top: 0.5rem;
     }
 
     .cart-preview.show {
@@ -1390,7 +1398,7 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
     }
 
     .cart-preview-header {
-      padding: 1.5rem;
+      padding: 1rem 1.25rem;
       border-bottom: 1px solid #f1f5f9;
       display: flex;
       justify-content: space-between;
@@ -1399,101 +1407,129 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
 
     .cart-preview-header h6 {
       margin: 0;
-      font-weight: 700;
+      font-weight: 600;
       color: #1e293b;
     }
 
     .cart-count {
       color: #64748b;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
     }
 
     .cart-preview-items {
       max-height: 300px;
       overflow-y: auto;
-      padding: 1rem;
+      padding: 0.5rem;
     }
 
     .cart-preview-item {
       display: flex;
       align-items: center;
       padding: 0.75rem;
-      border-radius: 10px;
-      margin-bottom: 0.75rem;
-      transition: all 0.3s ease;
+      border-radius: 8px;
+      transition: background 0.3s ease;
     }
 
     .cart-preview-item:hover {
       background: #f8fafc;
     }
 
-    .item-image {
+    .cart-preview-item .item-image {
       width: 50px;
       height: 50px;
-      margin-right: 0.75rem;
-      border-radius: 8px;
+      border-radius: 6px;
       overflow: hidden;
+      margin-right: 0.75rem;
+      flex-shrink: 0;
     }
 
-    .item-image img {
+    .cart-preview-item .item-image img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
 
-    .item-details {
+    .cart-preview-item .item-details {
       flex: 1;
+      min-width: 0;
     }
 
-    .item-name {
-      font-weight: 600;
+    .cart-preview-item .item-name {
+      font-weight: 500;
       margin-bottom: 0.25rem;
-      color: #1e293b;
       font-size: 0.9rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
-    .item-quantity {
-      font-size: 0.8rem;
+    .cart-preview-item .item-quantity {
       color: #64748b;
-      margin-bottom: 0.25rem;
+      font-size: 0.8rem;
+      margin-bottom: 0.125rem;
     }
 
-    .item-price {
-      font-weight: 700;
-      color: #0ea5e9;
-      font-size: 0.9rem;
+    .cart-preview-item .item-price {
+      color: #007bff;
+      font-weight: 600;
+      font-size: 0.85rem;
     }
 
     .more-items {
+      padding: 0.75rem 1.25rem;
       text-align: center;
       color: #64748b;
-      font-size: 0.9rem;
-      padding: 0.5rem;
+      font-size: 0.85rem;
       border-top: 1px solid #f1f5f9;
     }
 
     .cart-preview-footer {
-      padding: 1.5rem;
+      padding: 1rem 1.25rem;
       border-top: 1px solid #f1f5f9;
       background: #f8fafc;
+      border-radius: 0 0 16px 16px;
     }
 
     .cart-total {
-      margin-bottom: 1rem;
       text-align: center;
+      margin-bottom: 1rem;
       font-size: 1.1rem;
       color: #1e293b;
     }
 
     .cart-actions {
       display: flex;
-      gap: 0.75rem;
+      gap: 0.5rem;
     }
 
     .cart-actions .btn {
       flex: 1;
+      padding: 0.5rem;
       border-radius: 8px;
+      font-weight: 500;
+      font-size: 0.85rem;
+      text-decoration: none;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    /* Notification Badge */
+    .notification-badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: white;
+      border-radius: 50%;
+      min-width: 18px;
+      height: 18px;
+      font-size: 0.65rem;
       font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: pulse 2s infinite;
+      border: 2px solid white;
     }
 
     /* Overlays */
@@ -1504,215 +1540,195 @@ import { takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(0, 0, 0, 0.3);
       z-index: 999;
+      opacity: 0;
+      animation: fadeIn 0.3s ease forwards;
     }
 
-    /* Responsive Design */
-    @media (max-width: 1200px) {
-      .search-container {
-        max-width: 400px;
-      }
-      
-      .mega-menu .container-fluid {
-        padding: 0 1rem;
-      }
-    }
-
-    @media (max-width: 992px) {
-      .top-bar {
-        display: none;
-      }
-      
-      .navbar-collapse {
-        background: white;
-        border-radius: 15px;
-        margin-top: 1rem;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        border: 1px solid #e2e8f0;
-        padding: 1rem;
-      }
-      
-      .search-container {
-        order: -1;
-        margin: 1rem 0;
-        max-width: none;
-      }
-      
-      .mega-menu {
-        position: static;
+    @keyframes fadeIn {
+      to {
         opacity: 1;
-        visibility: visible;
-        transform: none;
-        box-shadow: none;
-        border-radius: 0;
-        padding: 1rem;
-        background: #f8fafc;
-      }
-      
-      .cart-preview {
-        right: auto;
-        left: 0;
-        min-width: 280px;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .brand-text {
-        display: none;
-      }
-      
-      .nav-link span {
-        display: none;
-      }
-      
-      .top-bar-left,
-      .top-bar-right {
-        flex-direction: column;
-        gap: 0.5rem;
-        text-align: center;
-      }
-    }
-
-    @media (max-width: 576px) {
-      .navbar {
-        padding: 0.75rem 0;
-      }
-      
-      .brand-container {
-        gap: 0.5rem;
-      }
-      
-      .brand-icon {
-        width: 32px;
-        height: 32px;
-        font-size: 1.2rem;
-      }
-      
-      .brand-name {
-        font-size: 1.2rem;
-      }
-      
-      .featured-products,
-      .quick-links {
-        display: none;
-      }
-      
-      .cart-preview {
-        min-width: 250px;
       }
     }
 
     /* Animations */
     @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.1);
+      }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1199px) {
+      .mega-menu .col-lg-2 {
+        display: none;
+      }
+    }
+
+    @media (max-width: 991px) {
+      .top-bar {
+        display: none;
+      }
+
+      .navbar-collapse {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border-radius: 0 0 16px 16px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        border-top: 1px solid #e2e8f0;
+        padding: 1rem;
+        margin-top: 1px;
+      }
+
+      .search-container {
+        order: 3;
+        width: 100%;
+        max-width: none;
+        margin: 1rem 0;
+      }
+
+      .navbar-nav {
+        margin-bottom: 1rem;
+      }
+
+      .nav-link {
+        padding: 0.75rem 1rem !important;
+        margin: 0.125rem 0;
+        border-radius: 8px;
+      }
+
+      .mega-menu {
+        position: static;
+        box-shadow: none;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        margin-top: 0.5rem;
+        padding: 1rem;
+      }
+
+      .mega-menu .row {
+        flex-direction: column;
+      }
+
+      .mega-menu .col-lg-3,
+      .mega-menu .col-lg-4 {
+        margin-bottom: 1.5rem;
+      }
+
+      .cart-preview {
+        right: -50px;
+        width: 300px;
+      }
+    }
+
+    @media (max-width: 767px) {
+      .brand-name {
+        font-size: 1.3rem;
+      }
+
+      .brand-tagline {
+        display: none;
+      }
+
+      .nav-link span {
+        font-size: 0.9rem;
+      }
+
+      .search-dropdown {
+        left: -20px;
+        right: -20px;
+      }
+
+      .cart-preview {
+        right: -75px;
+        width: 280px;
+      }
+    }
+
+    @media (max-width: 575px) {
+      .brand-icon {
+        width: 35px;
+        height: 35px;
+        font-size: 1.25rem;
+      }
+
+      .brand-name {
+        font-size: 1.2rem;
+      }
+
+      .search-input {
+        font-size: 16px; /* Prevents zoom on iOS */
+      }
+
+      .cart-preview {
+        right: -100px;
+        width: 260px;
+      }
+    }
+
+    /* Accessibility */
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
     }
   `]
 })
 export class HeaderComponent implements OnInit, OnDestroy {
-  categories: Category[] = [];
-  featuredProducts: Product[] = [];
+  private destroy$ = new Subject<void>();
+  private searchSubject = new BehaviorSubject<string>('');
+  
+  // Component state
   searchQuery = '';
   searchResults: Product[] = [];
-  searchSuggestions: string[] = ['Gaming Laptops', 'Wireless Headphones', 'Mechanical Keyboards'];
-  selectedCategory: string | null = null;
+  searchSuggestions: string[] = ['Gaming Laptops', 'iPhone', 'Headphones', 'Graphics Cards'];
+  showSearchResults = false;
   
-  signOut(event: Event): void {
-    event.preventDefault();
-    if (confirm('Are you sure you want to sign out?')) {
-      console.log('Signing out...');
-      // Implement sign out logic here
-      // this.userService.logout().subscribe(() => {
-      //   this.router.navigate(['/']);
-      // });
-    }
-  }
-  // State management
-  isScrolled = false;
-  mobileMenuOpen = false;
+  categories: Category[] = [];
+  featuredProducts: Product[] = [];
+  
+  // Menu states
   megaMenuOpen = false;
+  mobileMenuOpen = false;
   userMenuOpen = false;
   cartPreviewOpen = false;
-  showSearchResults = false;
-  searchFocused = false;
-  mobileSearchOpen = false;
+  showNotificationBar = true;
   
-  // Cart data
+  // Cart and user data
   cartItems: CartItem[] = [];
   cartItemCount = 0;
   cartTotal = 0;
-  wishlistItemCount = 0;
+  wishlistItemCount = 5;
   
-  // Mobile detection
-  isMobile = false;
+  // Scroll state
+  isScrolled = false;
   
-  private destroy$ = new Subject<void>();
-  private searchSubject = new BehaviorSubject<string>('');
-
   constructor(
     private productService: ProductService,
     private cartService: CartService,
     private router: Router,
     @Inject(PLATFORM_ID) private platformId: Object
-  ) {
-    this.isMobile = isPlatformBrowser(this.platformId) && window.innerWidth < 768;
-  }
-
-  @HostListener('window:scroll', ['$event'])
-  onWindowScroll(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      this.isScrolled = window.pageYOffset > 100;
-    }
-  }
-
-  @HostListener('window:resize', ['$event'])
-  onWindowResize(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      this.isMobile = window.innerWidth < 768;
-      if (!this.isMobile) {
-        this.mobileMenuOpen = false;
-        this.mobileSearchOpen = false;
-      }
-    }
-  }
-
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: Event): void {
-    const target = event.target as HTMLElement;
-    
-    // Close mega menu if clicking outside
-    if (!target.closest('.mega-dropdown')) {
-      this.megaMenuOpen = false;
-    }
-    
-    // Close search results if clicking outside
-    if (!target.closest('.search-container')) {
-      this.showSearchResults = false;
-    }
-    
-    // Close cart preview if clicking outside
-    if (!target.closest('.cart-dropdown')) {
-      this.cartPreviewOpen = false;
-    }
-  }
+  ) {}
 
   ngOnInit(): void {
-    this.loadCategories();
-    this.loadFeaturedProducts();
-    this.setupSearch();
-    this.subscribeToCart();
-    
-    // Handle route changes
-    this.router.events
-      .pipe(
-        filter(event => event instanceof NavigationEnd),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(() => {
-        this.closeMobileMenu();
-        this.closeMegaMenu();
-      });
+    this.initializeComponent();
+    this.setupSearchDebounce();
+    this.loadInitialData();
+    this.subscribeToCartChanges();
+    this.setupScrollListener();
+    this.setupRouterEvents();
   }
 
   ngOnDestroy(): void {
@@ -1720,120 +1736,169 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  loadCategories(): void {
-    this.productService.getCategories().subscribe({
+  private initializeComponent(): void {
+    // Load notification bar state from localStorage
+    if (isPlatformBrowser(this.platformId)) {
+      const notificationDismissed = localStorage.getItem('notificationBarDismissed');
+      this.showNotificationBar = !notificationDismissed;
+    }
+  }
+
+  private setupSearchDebounce(): void {
+    this.searchSubject.pipe(
+      takeUntil(this.destroy$),
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap(query => {
+        if (query.length >= 2) {
+          return this.productService.searchProducts(query);
+        }
+        return of([]);
+      })
+    ).subscribe({
+      next: (results) => {
+        this.searchResults = results;
+      },
+      error: (error) => {
+        console.error('Search error:', error);
+        this.searchResults = [];
+      }
+    });
+  }
+
+  private loadInitialData(): void {
+    this.loadCategories();
+    this.loadFeaturedProducts();
+  }
+
+  private subscribeToCartChanges(): void {
+    this.cartService.getCartItems().pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(items => {
+      this.cartItems = items;
+      this.cartTotal = this.cartService.getCartTotal();
+    });
+
+    this.cartService.getCartItemCount().pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(count => {
+      this.cartItemCount = count;
+    });
+  }
+
+  private setupScrollListener(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      window.addEventListener('scroll', this.onScroll.bind(this), { passive: true });
+    }
+  }
+
+  private setupRouterEvents(): void {
+    this.router.events.pipe(
+      takeUntil(this.destroy$),
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      this.closeMobileMenu();
+      this.closeMegaMenu();
+      this.hideSearchResults();
+    });
+  }
+
+  @HostListener('window:scroll', ['$event'])
+  onScroll(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      this.isScrolled = window.scrollY > 100;
+    }
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event): void {
+    const target = event.target as HTMLElement;
+    
+    // Close search results if clicking outside
+    if (this.showSearchResults && !target.closest('.search-container')) {
+      this.hideSearchResults();
+    }
+    
+    // Close mega menu if clicking outside
+    if (this.megaMenuOpen && !target.closest('.mega-dropdown')) {
+      this.closeMegaMenu();
+    }
+    
+    // Close cart preview if clicking outside
+    if (this.cartPreviewOpen && !target.closest('.cart-dropdown')) {
+      this.hideCartPreview();
+    }
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  onKeyDown(event: KeyboardEvent): void {
+    // Close dropdowns on Escape key
+    if (event.key === 'Escape') {
+      this.hideSearchResults();
+      this.closeMegaMenu();
+      this.hideCartPreview();
+      this.closeMobileMenu();
+    }
+    
+    // Focus search on Ctrl/Cmd + K
+    if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
+      event.preventDefault();
+      this.focusSearch();
+    }
+  }
+
+  // Data loading methods
+  private loadCategories(): void {
+    this.productService.getCategories().pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
       next: (categories) => {
         this.categories = categories.slice(0, 6); // Show only first 6 categories
       },
       error: (error) => {
         console.error('Error loading categories:', error);
+        this.categories = [];
       }
     });
   }
 
-  loadFeaturedProducts(): void {
-    this.productService.getFeaturedProducts(4).subscribe({
+  private loadFeaturedProducts(): void {
+    this.productService.getFeaturedProducts(4).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
       next: (products) => {
         this.featuredProducts = products;
       },
       error: (error) => {
         console.error('Error loading featured products:', error);
+        this.featuredProducts = [];
       }
     });
   }
 
-  setupSearch(): void {
-    this.searchSubject
-      .pipe(
-        debounceTime(300),
-        distinctUntilChanged(),
-        switchMap(query => {
-          if (query.length >= 2) {
-            return this.productService.searchProducts(query);
-          }
-          return of([]);
-        }),
-        takeUntil(this.destroy$)
-      )
-      .subscribe({
-        next: (results) => {
-          this.searchResults = results;
-        },
-        error: (error) => {
-          console.error('Error searching products:', error);
-          this.searchResults = [];
-        }
-      });
+  // Search methods
+  onSearchInput(): void {
+    this.searchSubject.next(this.searchQuery);
+    this.showSearchResults = true;
   }
 
-  subscribeToCart(): void {
-    this.cartService.getCartItems()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(items => {
-        this.cartItems = items;
-        this.cartTotal = this.cartService.getCartTotal();
-      });
-
-    this.cartService.getCartItemCount()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(count => {
-        this.cartItemCount = count;
-      });
-  }
-
-  // Menu Controls
-  toggleMobileMenu(): void {
-    this.mobileMenuOpen = !this.mobileMenuOpen;
-    if (this.mobileMenuOpen) {
-      this.megaMenuOpen = false;
-      this.showSearchResults = false;
-    }
-  }
-
-  closeMobileMenu(): void {
-    this.mobileMenuOpen = false;
-  }
-
-  showMegaMenu(): void {
-    if (!this.isMobile) {
-      this.megaMenuOpen = true;
-    }
-  }
-
-  hideMegaMenu(): void {
-    if (!this.isMobile) {
-      this.megaMenuOpen = false;
-    }
-  }
-
-  closeMegaMenu(): void {
-    this.megaMenuOpen = false;
-  }
-
-  // Search Controls
   onSearchFocus(): void {
-    this.searchFocused = true;
     this.showSearchResults = true;
   }
 
   onSearchBlur(): void {
-    // Delay hiding to allow for clicks on dropdown
+    // Delay hiding to allow clicks on search results
     setTimeout(() => {
-      this.searchFocused = false;
+      if (!document.activeElement?.closest('.search-dropdown')) {
+        this.showSearchResults = false;
+      }
     }, 200);
-  }
-
-  onSearchInput(): void {
-    this.searchSubject.next(this.searchQuery);
-    this.showSearchResults = this.searchQuery.length > 0;
   }
 
   performSearch(): void {
     if (this.searchQuery.trim()) {
       this.hideSearchResults();
-      this.addToSearchSuggestions(this.searchQuery);
-      
-      // Navigate to products page with search query
+      this.addToSearchHistory(this.searchQuery);
       this.router.navigate(['/products'], { 
         queryParams: { q: this.searchQuery } 
       });
@@ -1849,32 +1914,91 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.showSearchResults = false;
   }
 
-  private addToSearchSuggestions(query: string): void {
-    if (!this.searchSuggestions.includes(query)) {
-      this.searchSuggestions.unshift(query);
-      this.searchSuggestions = this.searchSuggestions.slice(0, 5); // Keep only 5 suggestions
+  private focusSearch(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      const searchInput = document.querySelector('.search-input') as HTMLInputElement;
+      if (searchInput) {
+        searchInput.focus();
+        searchInput.select();
+      }
     }
   }
 
-  // Cart Controls
+  private addToSearchHistory(query: string): void {
+    if (isPlatformBrowser(this.platformId)) {
+      try {
+        const history = JSON.parse(localStorage.getItem('searchHistory') || '[]');
+        const updatedHistory = [query, ...history.filter((item: string) => item !== query)].slice(0, 5);
+        localStorage.setItem('searchHistory', JSON.stringify(updatedHistory));
+        this.searchSuggestions = updatedHistory;
+      } catch (error) {
+        console.error('Error saving search history:', error);
+      }
+    }
+  }
+
+  // Menu methods
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen = !this.mobileMenuOpen;
+    if (this.mobileMenuOpen) {
+      this.closeMegaMenu();
+      this.hideCartPreview();
+    }
+  }
+
+  closeMobileMenu(): void {
+    this.mobileMenuOpen = false;
+  }
+
+  showMegaMenu(): void {
+    if (!this.mobileMenuOpen) {
+      this.megaMenuOpen = true;
+    }
+  }
+
+  hideMegaMenu(): void {
+    setTimeout(() => {
+      this.megaMenuOpen = false;
+    }, 100);
+  }
+
+  closeMegaMenu(): void {
+    this.megaMenuOpen = false;
+  }
+
+  // Cart methods
   showCartPreview(): void {
-    if (!this.isMobile && this.cartItems.length > 0) {
+    if (this.cartItems.length > 0) {
       this.cartPreviewOpen = true;
     }
   }
 
   hideCartPreview(): void {
-    if (!this.isMobile) {
+    setTimeout(() => {
       this.cartPreviewOpen = false;
+    }, 100);
+  }
+
+  // Notification methods
+  closeNotificationBar(): void {
+    this.showNotificationBar = false;
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem('notificationBarDismissed', 'true');
     }
   }
 
-  // Utility Functions
+  // User methods
+  signOut(event: Event): void {
+    event.preventDefault();
+    // Implement sign out logic
+    console.log('Signing out...');
+  }
+
+  // Utility methods
   getStars(rating: number): number[] {
     return Array(Math.floor(rating)).fill(0);
   }
 
-  // TrackBy Functions
   trackByCategory(index: number, category: Category): number {
     return category.id;
   }
